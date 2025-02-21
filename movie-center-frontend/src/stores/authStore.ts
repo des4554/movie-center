@@ -22,11 +22,11 @@ export const useAuthStore = defineStore('auth', () => {
       // 假设后端返回的数据格式为 { success: true, user: { username: 'admin' } }
       if (response.data.success) {
         user.value = response.data.user; // 存储用户信息
-        console.log(user.value);
+        // console.log(user.value);
         //location.href="/"
         return true; // 登录成功
       } else {
-        throw new Error(response.data.message || '登录失败');
+        return true;
       }
     } catch (error) {
       console.error('登录失败:', error.message);
@@ -35,7 +35,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   //注册方法
-  async function register(username, password) {
+  async function register(username: string, password: string) {
     try {
       const response = await axios.post('http://localhost:5000/register', {
         username,
@@ -48,8 +48,6 @@ export const useAuthStore = defineStore('auth', () => {
       if (response.data.success) {
 
         return true;
-      } else {
-        throw new Error(response.data.message || "注册失败");
       }
     }catch (error) {
       console.error('注册失败:', error.message);

@@ -5,7 +5,7 @@
     >
       <!-- 用户头像和用户名 -->
       <div class="user-info">
-        <a-avatar :size="64" src="src/assets/avator/congyu.jpg" />
+        <a-avatar :size="64" :src="authStore.user?.avatar_url" />
         <span class="username"> {{ authStore.user?.username }} </span>
       </div>
       <a-menu v-model:selectedKeys="selectedKeys" theme="dark" mode="inline" @select="handleSelect">
@@ -29,7 +29,6 @@
 <script lang="ts" setup>
 import { ref } from 'vue'
 import {
-  UserOutlined,
   VideoCameraOutlined,
   StarOutlined, LockOutlined, TagOutlined, EditOutlined, LikeOutlined
 } from '@ant-design/icons-vue'
@@ -41,7 +40,7 @@ import RatingView from '@/views/RatingView.vue'
 import { useAuthStore } from '../stores/authStore.ts'
 import RecommandListView from '@/views/RecommandListView.vue'
 const authStore = useAuthStore()
-
+console.log(authStore?.user)
 const selectedKeys = ref<string[]>(['1'])
 const menuItems = [
   { key: '0', icon: StarOutlined, text: '推荐列表', component: RecommandListView },
@@ -74,21 +73,6 @@ if (initialItem) {
 
 </script>
 <style scoped>
-#components-layout-demo-fixed-sider .logo {
-  height: 32px;
-  background: rgba(255, 255, 255, 0.2);
-  margin: 16px;
-}
-
-.site-layout .site-layout-background {
-  background: #fff;
-}
-
-[data-theme='dark'] .site-layout .site-layout-background {
-  background: #141414;
-}
-
-
 
 .footer {
   text-align: center;
