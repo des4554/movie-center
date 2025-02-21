@@ -20,13 +20,22 @@
           </a-upload>
         </div>
       </a-form-item>
-      <a-form-item label="电话" :rules="[{ required: true, message: '请输入电话号码' }, { required: true, pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码' }]">
+      <a-form-item label="电话" name="phone" :rules="[
+        { required: true, message: '请输入电话号码' },
+        { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码' }
+      ]">
         <a-input v-model:value="formData.phone" placeholder="请输入电话号码" />
       </a-form-item>
-      <a-form-item label="邮箱" :rules="[{ required: true, message: '请输入邮箱' }, { type: 'email', message: '请输入正确的邮箱地址' }]">
+      <a-form-item label="邮箱" name="email" :rules="[
+        { required: true, message: '请输入邮箱' },
+        { type: 'email', message: '请输入正确的邮箱地址' }
+      ]">
         <a-input v-model:value="formData.email" placeholder="请输入邮箱" />
       </a-form-item>
-      <a-form-item label="年龄" :rules="[{ required: true, message: '请输入年龄' }, { type: 'number', min: 0, message: '年龄不能为负数' }]">
+      <a-form-item label="年龄" name="age" :rules="[
+        { required: true, message: '请输入年龄' },
+        { type: 'number', min: 0, max: 150, message: '年龄必须在0到150之间' }
+      ]">
         <a-input-number v-model:value="formData.age" placeholder="请输入年龄" />
       </a-form-item>
       <a-form-item label="性别" :rules="[{ required: true, message: '请选择性别' }]">
@@ -60,8 +69,7 @@ const formData = ref({
   gender: authStore.user?.gender
 });
 
-const handleSubmit = (values) => {
-  console.log('提交的用户信息：', values);
+const handleSubmit = () => {
   // 这里可以添加实际的提交逻辑，如发送请求到后端
   axios.post('http://localhost:5000/infoChange', formData.value).then(res => {
     console.log(res.data)
@@ -76,12 +84,16 @@ const handleSubmit = (values) => {
       age: formData.value.age,
       gender: formData.value.gender
     };
+
+    message.success("修改成功")
   })
 };
 
 const handleSubmitFailed = (errorInfo) => {
   console.log('提交失败：', errorInfo);
+  message.error('表单校验失败，请检查输入！');
 };
+
 
 
 //头像上传
