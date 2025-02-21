@@ -26,14 +26,15 @@ def login():
         return jsonify({
             "success": True,
             "user": {
-                "id": user.user_id,
+                "userid": user.user_id,
                 "username": user.username,
                 "role": user.role,
                 "avatar_url": user.avatarUrl,
                 "email": user.email,
                 "phone": user.phone,
                 "gender": user.gender,
-                "age": user.age
+                "age": user.age,
+                "password": user.password
             },
         })
     else:
@@ -150,7 +151,7 @@ def add_rating():
 def infoChange():
     data = request.get_json()
     print("data" + str(data))
-    id = data.get('userId')
+    id = data.get('userid')
     user = User.query.get(id)
     print(user)
     user.username = data.get('username')
@@ -159,6 +160,7 @@ def infoChange():
     user.email = data.get('email')
     user.gender = data.get('gender')
     user.age = data.get('age')
+    user.password = data.get('password')
     db.session.commit()
     return jsonify({
         'success': True,

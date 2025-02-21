@@ -2,13 +2,13 @@
   <div>
     <h2>密码修改</h2>
     <a-form :model="formData" @finish="handleSubmit" @finish-failed="handleSubmitFailed" :label-col="{ span: 6 }" :wrapper-col="{ span: 14 }">
-      <a-form-item label="旧密码" :rules="[{ required: true, message: '请输入旧密码' }]">
+      <a-form-item label="旧密码" name="oldPassword" :rules="[{ required: true, message: '请输入旧密码' }]">
         <a-input-password v-model:value="formData.oldPassword" placeholder="请输入旧密码" />
       </a-form-item>
-      <a-form-item label="新密码" :rules="[{ required: true, message: '请输入新密码' }, { min: 6, message: '密码长度不能少于 6 位' }]">
+      <a-form-item label="新密码" name="newPassword" :rules="[{ required: true, message: '请输入新密码' }, { min: 3, message: '密码长度不能少于 3 位' }]">
         <a-input-password v-model:value="formData.newPassword" placeholder="请输入新密码" />
       </a-form-item>
-      <a-form-item label="确认新密码" :rules="[{ required: true, message: '请确认新密码' }, { validator: validateConfirmPassword }]">
+      <a-form-item label="确认新密码" name="confirmPassword" :rules="[{ required: true, message: '请确认新密码' }, { validator: validateConfirmPassword }]">
         <a-input-password v-model:value="formData.confirmPassword" placeholder="请再次输入新密码" />
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 6 }">
@@ -19,10 +19,13 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue';
-import { Form, Input, Button, InputPassword } from 'ant-design-vue';
+import { message } from 'ant-design-vue'
+import { useAuthStore } from '@/stores/authStore.js'
+import axios from 'axios'
 
+const authStore = useAuthStore()
 const formData = ref({
   oldPassword: '',
   newPassword: '',
@@ -38,7 +41,22 @@ const validateConfirmPassword = (rule, value) => {
 
 const handleSubmit = (values) => {
   console.log('提交的表单数据：', values);
-  // 这里可添加实际的密码修改逻辑，如发送请求到后端
+  //先校验旧密码是否正确
+  if (formData.value.oldPassword !== '' && formData.value.oldPassword != authStore?.user.password) {
+    message.error("原密码错误！")
+    return false
+  } else {
+    authStore.user = {
+      ...authStore.user, // 保留原有字段
+      password: formData.value.newPassword,
+    };
+    axios.post('http://localhost:5000/infoChange', authStore.user).then(res => {
+      // console.log(res.data)
+      if (res.data.success) {
+        message.success("密码修改成功")
+      }
+    })
+  }
 };
 
 const handleSubmitFailed = (errorInfo) => {

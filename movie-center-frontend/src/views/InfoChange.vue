@@ -60,7 +60,7 @@ import axios from 'axios'
 const authStore = useAuthStore()
 
 const formData = ref({
-  userId: authStore.user?.id,
+  userid: authStore.user?.id,
   username: authStore.user?.username,
   avatar: authStore.user?.avatar_url,
   phone: authStore.user?.phone,
