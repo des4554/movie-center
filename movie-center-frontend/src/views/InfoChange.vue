@@ -65,6 +65,17 @@ const handleSubmit = (values) => {
   // 这里可以添加实际的提交逻辑，如发送请求到后端
   axios.post('http://localhost:5000/infoChange', formData.value).then(res => {
     console.log(res.data)
+
+    //更新user
+    authStore.user = {
+      ...authStore.user, // 保留原有字段
+      username: formData.value.username,
+      avatar_url: formData.value.avatar,
+      phone: formData.value.phone,
+      email: formData.value.email,
+      age: formData.value.age,
+      gender: formData.value.gender
+    };
   })
 };
 
@@ -93,12 +104,14 @@ function handleAvatarChange(info) {
   console.log(info);
   if (info.file.status === 'done') {
     // 上传成功，更新头像 URL
-    formData.avatar = info.file.response.url; // 假设接口返回 { url: '...' }
+    formData.value.avatar = info.file.response.url; // 假设接口返回 { url: '...' }
     message.success('头像上传成功！');
   } else if (info.file.status === 'error') {
     message.error('头像上传失败！');
   }
 }
+
+
 </script>
 
 <style scoped>
