@@ -60,7 +60,7 @@ import axios from 'axios'
 const authStore = useAuthStore()
 
 const formData = ref({
-  userid: authStore.user?.id,
+  userid: authStore.user?.userid,
   username: authStore.user?.username,
   avatar: authStore.user?.avatar_url,
   phone: authStore.user?.phone,
@@ -70,21 +70,19 @@ const formData = ref({
 });
 
 const handleSubmit = () => {
+  //先更新前端user，再发送给后端
+  authStore.user = {
+    ...authStore.user, // 保留原有字段
+    username: formData.value.username,
+    avatar_url: formData.value.avatar,
+    phone: formData.value.phone,
+    email: formData.value.email,
+    age: formData.value.age,
+    gender: formData.value.gender
+  };
   // 这里可以添加实际的提交逻辑，如发送请求到后端
-  axios.post('http://localhost:5000/infoChange', formData.value).then(res => {
+  axios.post('http://localhost:5000/infoChange', authStore.user).then(res => {
     console.log(res.data)
-
-    //更新user
-    authStore.user = {
-      ...authStore.user, // 保留原有字段
-      username: formData.value.username,
-      avatar_url: formData.value.avatar,
-      phone: formData.value.phone,
-      email: formData.value.email,
-      age: formData.value.age,
-      gender: formData.value.gender
-    };
-
     message.success("修改成功")
   })
 };
