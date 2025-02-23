@@ -6,7 +6,7 @@
       @back="goBack"
       style="background-color: #fff; border-bottom: 1px solid #ddd"
     />
-    <a-layout-content style="padding: 24px">
+    <a-layout-content style="padding-left: 75px; padding-right: 75px; padding-top: 25px;">
       <a-row :gutter="16">
         <!-- 电影海报 -->
         <a-col :span="8">
@@ -14,17 +14,44 @@
         </a-col>
         <!-- 电影信息 -->
         <a-col :span="16">
-          <a :ref="movie.url">{{ movie.name }}</a>
-          <p><strong>电影时长:</strong> {{ movie.time }}</p>
-          <p><strong>类别:</strong> {{ movie.genre }}</p>
-<!--          <p><strong>评分:</strong> {{ movie.rating }}</p>-->
-          <p><strong>简介:</strong> {{ movie.intro }}</p>
-          <p><strong>导演:</strong> {{ movie.directors }}</p>
-          <p><strong>编剧:</strong> {{ movie.writers }}</p>
-          <p><strong>主演:</strong> {{ movie.stars }}</p>
-          <p><strong>上映日期:</strong> {{ movie.release_time }}</p>
+          <a-descriptions title="电影信息" bordered style="font-size: 30px">
+            <a-descriptions-item label="电影名" >{{ movie.name }}</a-descriptions-item>
+            <a-descriptions-item label="类别" :span="2">{{ movie.genre }}</a-descriptions-item>
+            <a-descriptions-item label="简介">{{ movie.intro }}</a-descriptions-item>
+            <a-descriptions-item label="导演">{{ movie.directors }}</a-descriptions-item>
+            <a-descriptions-item label="编剧" :span="2">{{ movie.writers }}</a-descriptions-item>
+            <a-descriptions-item label="主演">{{ movie.stars }}</a-descriptions-item>
+            <a-descriptions-item label="上映日期">{{ movie.release_time }}</a-descriptions-item>
+          </a-descriptions>
+
+          <a-divider style="border-top: 2px solid #1890ff;"></a-divider>
+
+          <span style="font-weight: bold; font-size: large">我的评分：</span>
+          <a-rate v-model:value="value" allow-half style="font-size: 30px"/>
+
+          <a-divider style="border-top: 2px solid #1890ff;"></a-divider>
+
+          <!-- 文本框 -->
+          <a-textarea
+            v-model:value="inputText"
+            placeholder="请输入内容"
+            :auto-size="{ minRows: 3, maxRows: 6 }"
+            style="margin-bottom: 16px;"
+          />
+
+          <!-- 按钮组 -->
+          <div>
+            <a-button type="primary" @click="handleSubmit" style="margin-right: 8px;">
+              提交
+            </a-button>
+            <a-button @click="handleClear">
+              清空
+            </a-button>
+          </div>
         </a-col>
+
       </a-row>
+
     </a-layout-content>
   </a-layout>
 </template>
@@ -74,9 +101,9 @@ const fetchMovieDetail = async () => {
   movie.value.movie_id = movieId
     // 假设有一个API接口获取电影详情
     axios.get(`http://localhost:5000/movies/${movieId}`).then(res=>{
-      // console.log(res.data)
+      console.log(res.data)
       movie.value = res.data
-    }).catch(err=>{
+    }).catch(()=>{
       message.error("电影详情加载失败")
     })
 };
@@ -107,4 +134,6 @@ p {
   font-size: 16px;
   margin: 8px 0;
 }
+
+
 </style>
