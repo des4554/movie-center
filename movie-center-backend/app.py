@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, send_from_directory
-from models import db, User, Movie, Rating
+from models import db, User, Movie, Rating, MovieDetail
 from config import Config
 from flask_cors import CORS
 import os
@@ -112,6 +112,22 @@ def search():
         'rating': movie.rating
     } for movie in filtered_movies])
 
+#搜索电影详情信息
+@app.route('/movies/<int:movieId>', methods=['GET'])
+def get_movie_detail(movieId):
+    movie = MovieDetail.query.get(movieId)
+    return jsonify({
+        'movie_id': movie.id,
+        'name': movie.name,
+        'url': movie.url,
+        'time': movie.time,
+        'genre': movie.genre,
+        'release_time': movie.release_time,
+        'intro': movie.intro,
+        'directors': movie.directors,
+        'writers': movie.writers,
+        'stars': movie.stars
+    }), 201
 # 添加电影（管理员功能）
 @app.route('/movies', methods=['POST'])
 def add_movie():

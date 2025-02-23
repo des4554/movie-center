@@ -14,11 +14,15 @@
         </a-col>
         <!-- 电影信息 -->
         <a-col :span="16">
-          <h1>{{ movie.title }}</h1>
-          <p><strong>类别:</strong> {{ movie.genres }}</p>
-          <p><strong>评分:</strong> {{ movie.rating }}</p>
-          <p><strong>简介:</strong> {{ movie.description }}</p>
-          <p><strong>上映日期:</strong> {{ movie.release_date }}</p>
+          <a :ref="movie.url">{{ movie.name }}</a>
+          <p><strong>电影时长:</strong> {{ movie.time }}</p>
+          <p><strong>类别:</strong> {{ movie.genre }}</p>
+<!--          <p><strong>评分:</strong> {{ movie.rating }}</p>-->
+          <p><strong>简介:</strong> {{ movie.intro }}</p>
+          <p><strong>导演:</strong> {{ movie.directors }}</p>
+          <p><strong>编剧:</strong> {{ movie.writers }}</p>
+          <p><strong>主演:</strong> {{ movie.stars }}</p>
+          <p><strong>上映日期:</strong> {{ movie.release_time }}</p>
         </a-col>
       </a-row>
     </a-layout-content>
@@ -29,6 +33,7 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
+import axios from 'axios'
 
 // 定义电影数据的类型
 interface Movie {
@@ -41,7 +46,7 @@ interface Movie {
   intro: string;
   directors: string;
   writers: string;
-  starts: string;
+  stars: string;
 }
 
 // 获取路由实例
@@ -52,10 +57,14 @@ const router = useRouter();
 const movie = ref<Movie>({
   movie_id: '',
   name: '',
-  genres: '',
-  rating: '',
-  description: '',
-  release_date: '',
+  url: '',
+  time: '',
+  genre: '',
+  release_time: '',
+  intro: '',
+  directors: '',
+  writers: '',
+  stars: ''
 });
 
 // 获取电影详情
@@ -63,16 +72,13 @@ const fetchMovieDetail = async () => {
   const movieId = route.params.id as string;  //动态路由，小子
   // console.log(movieId)
   movie.value.movie_id = movieId
-  try {
     // 假设有一个API接口获取电影详情
-    const response = await fetch(`/api/movies/${movieId}`);
-    if (!response.ok) throw new Error('Failed to fetch movie details');
-    const data = await response.json();
-    movie.value = data;
-  } catch (error) {
-    message.error('加载电影详情失败');
-    console.error(error);
-  }
+    axios.get(`http://localhost:5000/movies/${movieId}`).then(res=>{
+      // console.log(res.data)
+      movie.value = res.data
+    }).catch(err=>{
+      message.error("电影详情加载失败")
+    })
 };
 
 // 返回上一页

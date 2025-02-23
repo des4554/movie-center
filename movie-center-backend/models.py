@@ -30,6 +30,24 @@ class Movie(db.Model):
     def __repr__(self):
         return f'<Movie {self.title}>'
 
+# 定义电影详情表模型
+class MovieDetail(db.Model):
+    __tablename__ = 'movie_detail'  # 表名
+
+    # 表字段
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)  # 电影ID，主键
+    name = db.Column(db.String(255), nullable=False)                 # 电影名称
+    url = db.Column(db.String(255))                                  # 电影URL
+    time = db.Column(db.String(50))                                  # 电影时长
+    genre = db.Column(db.String(255))                                # 电影类型
+    release_time = db.Column(db.String(255))                                # 上映时间
+    intro = db.Column(db.Text)                                       # 电影简介
+    directors = db.Column(db.String(255))                            # 导演
+    writers = db.Column(db.String(255))                              # 编剧
+    stars = db.Column(db.Text)                                       # 主演
+
+    def __repr__(self):
+        return f"<MovieDetail(id={self.id}, name={self.name}, genre={self.genre})>"
 class Rating(db.Model):
     """评分表"""
     __tablename__ = 'ratings'
