@@ -10,7 +10,7 @@
       <a-row :gutter="16">
         <!-- 电影海报 -->
         <a-col :span="8">
-          <img src="/poster/1.jpg" alt="Movie Poster" class="detail-poster" />
+          <img :src="`/poster/${movie.movie_id}.jpg`" alt="Movie Poster" class="detail-poster" />
         </a-col>
         <!-- 电影信息 -->
         <a-col :span="16">
@@ -33,11 +33,15 @@ import { message } from 'ant-design-vue';
 // 定义电影数据的类型
 interface Movie {
   movie_id: string;
-  title: string;
-  genres: string;
-  rating: string;
-  description: string;
-  release_date: string;
+  name: string;
+  url: string;
+  time: string;
+  genre: string;
+  release_time: string;
+  intro: string;
+  directors: string;
+  writers: string;
+  starts: string;
 }
 
 // 获取路由实例
@@ -47,19 +51,17 @@ const router = useRouter();
 // 电影详情数据
 const movie = ref<Movie>({
   movie_id: '',
-  title: '',
+  name: '',
   genres: '',
   rating: '',
   description: '',
   release_date: '',
 });
 
-// 电影海报 URL
-const posterUrl = ref<string>('');
-
 // 获取电影详情
 const fetchMovieDetail = async () => {
-  const movieId = route.params.id as string;
+  const movieId = route.params.id as string;  //动态路由，小子
+  // console.log(movieId)
   movie.value.movie_id = movieId
   try {
     // 假设有一个API接口获取电影详情
@@ -67,7 +69,6 @@ const fetchMovieDetail = async () => {
     if (!response.ok) throw new Error('Failed to fetch movie details');
     const data = await response.json();
     movie.value = data;
-    posterUrl.value = `/poster/${data.movie_id}.jpg`; // 动态生成海报 URL
   } catch (error) {
     message.error('加载电影详情失败');
     console.error(error);

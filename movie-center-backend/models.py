@@ -14,6 +14,7 @@ class User(db.Model):
     phone = db.Column(db.String(20))
     age = db.Column(db.Integer)
     gender = db.Column(db.String(20))
+    tags = db.Column(db.String(225))
     def __repr__(self):
         return f'<User {self.username}>'
 
