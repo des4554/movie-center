@@ -66,7 +66,6 @@ const fetchMovieRatings = (userid: number) => {
         movieRatings.value[i].movie_name = res.data.name
       })
     }
-
   })
 }
 // 表格列定义
@@ -121,11 +120,10 @@ const editMovieRating = (record) => {
   editFormData.value.movie_name = record.movie_name
   editFormData.value.rating = record.rating
   editFormData.value.comment = record.comment
-  editingRecord = record
 }
 
 const handleEditOk = () => {
-  console.log("ok", editFormData.value)
+  // console.log("ok", editFormData.value)
   const userId = editFormData.value.user_id
   const movieId = editFormData.value.movie_id
   axios.post(`http://localhost:5000/ratings/${userId}/${movieId}`, {
@@ -136,7 +134,6 @@ const handleEditOk = () => {
     ()=>{
       message.success("修改成功")
       fetchMovieRatings(authStore?.user.userid)
-
       isEditModalVisible.value = false
     }
   )

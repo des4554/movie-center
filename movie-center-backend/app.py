@@ -147,22 +147,6 @@ def add_movie():
 
     return jsonify({'message': 'Movie added successfully'}), 201
 
-# 增加用户评分
-@app.route('/ratings', methods=['POST'])
-def add_rating():
-    data = request.get_json()
-    user_id = data.get('user_id')
-    movie_id = data.get('movie_id')
-    rating = data.get('rating')
-
-    if not user_id or not movie_id or not rating:
-        return jsonify({'message': 'Missing required fields'}), 400
-
-    new_rating = Rating(user_id=user_id, movie_id=movie_id, rating=rating)
-    db.session.add(new_rating)
-    db.session.commit()
-
-    return jsonify({'message': 'Rating added successfully'}), 201
 #获取用户评分
 @app.route('/ratings/<int:userId>', methods=['GET'])
 def get_movie_rating(userId):
@@ -176,7 +160,25 @@ def get_movie_rating(userId):
         'comment': rating.comment,
         'timestamp': rating.timestamp
     } for rating in ratings])
-#修改用户评分
+
+@app.route('/ratings/<int:userId>/<int:movieId>', methods=['GET'])
+def get_movie_rating_comment(userId, movieId):
+    rating = Rating.query.filter_by(user_id=userId, movie_id=movieId).first()
+    if rating:
+        return jsonify({
+            'message': 'get ratings successfully',
+            'rating_id': rating.rating_id,
+            'user_id': rating.user_id,
+            'movie_id': rating.movie_id,
+            'rating': rating.rating,
+            'comment': rating.comment,
+            'timestamp': rating.timestamp
+        })
+    else:
+        return jsonify({
+            'message': 'Rating not found',
+        })
+#修改和新增用户评分
 @app.route('/ratings/<int:userId>/<int:movieId>', methods=['POST'])
 def updateMovieRating(userId, movieId):
     rating = Rating.query.filter_by(user_id=userId, movie_id=movieId).first()
@@ -189,7 +191,11 @@ def updateMovieRating(userId, movieId):
         db.session.commit()
         return jsonify({'message': 'Rating updated successfully'}), 201
     else:
-        return jsonify({'message': 'Rating is required'}), 400
+        new_rating = Rating(user_id=userId, movie_id=movieId, rating=rat, comment=comment)
+        db.session.add(new_rating)
+        db.session.commit()
+
+        return jsonify({'message': 'Rating added successfully'}), 201
 
 #删除用户评分
 @app.route('/ratings/<int:userId>/<int:movieId>', methods=['DELETE'])
