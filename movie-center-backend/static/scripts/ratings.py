@@ -24,12 +24,13 @@ try:
 
         # 遍历每部电影的平均评分，更新 movie 表
         for index, row in movie_ratings.iterrows():
-            movie_id = row['movie_id']
-            avg_rating = row['avg_rating']
+            movie_id = int(row['movie_id'])
+            avg_rating = round(float(row['avg_rating']),1)
 
+            # print(type(movie_id), type(avg_rating))
             # 更新 movie 表的 rating 字段
             update_query = """
-            UPDATE movie
+            UPDATE movies
             SET rating = %s
             WHERE movie_id = %s;
             """

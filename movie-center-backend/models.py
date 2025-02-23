@@ -55,6 +55,7 @@ class Rating(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
     rating = db.Column(db.Float, nullable=False)
+    comment = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
     def __repr__(self):

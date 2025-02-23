@@ -146,7 +146,7 @@ def add_movie():
 
     return jsonify({'message': 'Movie added successfully'}), 201
 
-# 用户评分
+# 增加用户评分
 @app.route('/ratings', methods=['POST'])
 def add_rating():
     data = request.get_json()
@@ -162,6 +162,19 @@ def add_rating():
     db.session.commit()
 
     return jsonify({'message': 'Rating added successfully'}), 201
+#获取用户评分
+@app.route('/ratings/<int:userId>', methods=['GET'])
+def get_movie_rating(userId):
+    ratings = Rating.query.filter_by(user_id=userId).all()
+    return jsonify([{
+        'message': 'get ratings successfully',
+        'rating_id': rating.rating_id,
+        'user_id': rating.user_id,
+        'movie_id': rating.movie_id,
+        'rating': rating.rating,
+        'comment': rating.comment,
+        'timestamp': rating.timestamp
+    } for rating in ratings])
 
 #修改用户信息
 @app.route('/infoChange', methods=['POST'])
