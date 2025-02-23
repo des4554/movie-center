@@ -1,9 +1,10 @@
 <template>
   <div>
-<!--    <h2>请选择你喜欢的电影类型</h2>-->
+    <!--    <h2>请选择你喜欢的电影类型</h2>-->
 
-    <a-checkbox-group v-model="checkedList" @change="handleCheckboxChange" >
-      <a-checkbox v-for="genre in movieGenres" :key="genre" :value="genre" class="a-checkbox-wrapper">
+    <a-checkbox-group v-model:value="checkedList" >
+      <a-checkbox v-for="genre in movieGenres" :key="genre" :value="genre"
+                  class="a-checkbox-wrapper">
         {{ genre }}
       </a-checkbox>
     </a-checkbox-group>
@@ -13,31 +14,32 @@
   </div>
 </template>
 
-<script lang="ts">
-import { Checkbox, Button } from 'ant-design-vue';
+<script setup lang="ts">
+import axios from 'axios'
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/authStore.ts'
+import { message } from 'ant-design-vue'
+const authStore = useAuthStore();
 
-export default {
-  components: {
-    'a-checkbox': Checkbox,
-    'a-checkbox-group': Checkbox.Group,
-    'a-button': Button
-  },
-  data() {
-    return {
-      movieGenres: ['动作', '喜剧', '科幻', '恐怖', '爱情', '悬疑', '动画', '冒险'],
-      checkedList: []
-    };
-  },
-  methods: {
-    handleCheckboxChange(checkedValues) {
-      this.checkedList = checkedValues;
-    },
-    handleSubmit() {
-      console.log('你选择的电影类型是:', this.checkedList);
-      // 这里可以添加实际的提交逻辑，例如发送数据到服务器
-    }
-  }
-};
+const movieGenres = ['动作', '喜剧', '科幻', '恐怖', '爱情', '悬疑', '动画', '冒险']
+const checkedList = ref<string[]>(authStore.user?.tags.split(','))
+
+
+function handleSubmit() {
+  console.log('你选择的电影类型是:', checkedList.value)
+  //先更新前端user，再发送给后端
+  authStore.user = {
+    ...authStore.user, // 保留原有字段
+    tags: checkedList.value.join()
+  };
+  // 这里可以添加实际的提交逻辑，如发送请求到后端
+  axios.post('http://localhost:5000/infoChange', authStore.user).then(res => {
+    console.log(res.data)
+    message.success("修改成功")
+  })
+}
+
+
 </script>
 
 <style scoped>
