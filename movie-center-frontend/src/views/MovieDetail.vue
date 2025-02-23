@@ -26,11 +26,12 @@
 
           <a-divider style="border-top: 2px solid #1890ff;"></a-divider>
 
-          <span style="font-weight: bold; font-size: large">我的评分：</span>
+          <span style="font-weight: bold; font-size: large">我的评分  </span>
           <a-rate v-model:value="value" allow-half style="font-size: 30px"/>
 
           <a-divider style="border-top: 2px solid #1890ff;"></a-divider>
 
+          <span style="display: block; font-weight: bold; font-size: large; margin-bottom: 15px">我的评论</span>
           <!-- 文本框 -->
           <a-textarea
             v-model:value="inputText"
