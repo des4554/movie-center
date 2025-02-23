@@ -4,21 +4,26 @@
     <a-table :columns="columns" :data-source="movieRatings">
       <template #operation="{ record }">
         <a-button @click="editMovieRating(record)">修改评分</a-button>
-        <a-button danger @click="deleteMovieRating(record)">删除</a-button>
+        <a-popconfirm title="确定要删除这条评分吗？" @confirm="deleteMovieRating(record)">
+          <a-button danger>删除</a-button>
+        </a-popconfirm>
       </template>
     </a-table>
     <!-- 修改评分模态框 -->
-    <a-modal :visible="isEditModalVisible" title="修改评分" @ok="handleEditOk" @cancel="handleEditCancel">
-      <template #content>
-        <a-form :model="editFormData" @finish="handleEditFormSubmit">
-          <a-form-item label="电影名称">
-            <a-input v-model:value="editFormData.movie" disabled />
-          </a-form-item>
-          <a-form-item label="评分" :rules="[{ required: true, message: '请输入评分' }, { type: 'number', min: 0, max: 10, message: '评分范围为 0 - 10' }]">
-            <a-input-number v-model:value="editFormData.rating" :min="0" :max="10" />
-          </a-form-item>
-        </a-form>
-      </template>
+    <a-modal :visible="isEditModalVisible" title="修改评分" @ok="handleEditOk"
+             @cancel="handleEditCancel">
+
+      <a-form :model="editFormData" >
+        <a-form-item label="电影名称">
+          <a-input v-model:value="editFormData.movie_name" disabled />
+        </a-form-item>
+        <a-form-item label="评分">
+          <a-rate v-model:value="editFormData.rating" allow-half style="font-size: 30px"/>
+        </a-form-item>
+        <a-form-item label="评论">
+          <a-input v-model:value="editFormData.comment" />
+        </a-form-item>
+      </a-form>
     </a-modal>
   </div>
 </template>
@@ -27,37 +32,38 @@
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/authStore.ts'
 import axios from 'axios'
+import { message } from 'ant-design-vue'
+
 const authStore = useAuthStore()
 
 class MovieRating {
-  "rating_id": number;
-  "movie_id": number;
-  "user_id": number;
-  "rating": number;
-  "comment": string;
-  "timestamp": string;
-  "movie_name": string;
+  'rating_id': number
+  'movie_id': number
+  'user_id': number
+  'rating': number
+  'comment': string
+  'timestamp': string
+  'movie_name': string
 }
 
 // 模拟电影评分数据
-const movieRatings = ref<MovieRating[]>([]);
+const movieRatings = ref<MovieRating[]>([])
 
 //获取电影评分
-onMounted(()=>{
+onMounted(() => {
   fetchMovieRatings(authStore?.user.userid)
 })
 
 const fetchMovieRatings = (userid: number) => {
-  axios.get(`http://localhost:5000/ratings/${userid}`).then(res =>  {
+  axios.get(`http://localhost:5000/ratings/${userid}`).then(res => {
     // console.log(res.data)
     // 显示的是电影名字，而不是电影id
     movieRatings.value = res.data
     for (let i = 0; i < res.data.length; i++) {
       const movieId = res.data[i].movie_id
-      axios.get(`http://localhost:5000/movies/${movieId}`).then(res =>  {
-        const movieName = res.data.name
+      axios.get(`http://localhost:5000/movies/${movieId}`).then(res => {
         // console.log(movieName)
-        movieRatings.value[i].movie_name = movieName
+        movieRatings.value[i].movie_name = res.data.name
       })
     }
 
@@ -95,70 +101,63 @@ const columns = [
     key: 'operation',
     slots: { customRender: 'operation' }
   }
-];
+]
 
 // 修改评分模态框相关
-const isEditModalVisible = ref(false);
+const isEditModalVisible = ref(false)
 const editFormData = ref({
-  movie: '',
-  rating: null
-});
-let editingRecord = null;
+  user_id: authStore?.user.id,
+  movie_id: null,
+  movie_name: '',
+  rating: null,
+  comment: ''
+})
 
 const editMovieRating = (record) => {
-  isEditModalVisible.value = true;
-  editFormData.value.movie = record.movie;
-  editFormData.value.rating = record.rating;
-  editingRecord = record;
-};
+  isEditModalVisible.value = true
+  editFormData.value.movie_id = record.movie_id
+  editFormData.value.user_id = record.user_id
+
+  editFormData.value.movie_name = record.movie_name
+  editFormData.value.rating = record.rating
+  editFormData.value.comment = record.comment
+  editingRecord = record
+}
 
 const handleEditOk = () => {
-  // 触发表单提交
-  document.querySelector('#editForm').requestSubmit();
-};
+  console.log("ok", editFormData.value)
+  const userId = editFormData.value.user_id
+  const movieId = editFormData.value.movie_id
+  axios.post(`http://localhost:5000/ratings/${userId}/${movieId}`, {
+    //todo 更新时间
+    rating: editFormData.value.rating,
+    comment: editFormData.value.comment,
+  }).then(
+    ()=>{
+      message.success("修改成功")
+      fetchMovieRatings(authStore?.user.userid)
+
+      isEditModalVisible.value = false
+    }
+  )
+
+}
 
 const handleEditCancel = () => {
-  isEditModalVisible.value = false;
-};
-
-const handleEditFormSubmit = (values) => {
-  const index = movieRatings.value.findIndex(item => item.key === editingRecord.key);
-  if (index !== -1) {
-    movieRatings.value[index].rating = values.rating;
-    movieRatings.value[index].ratingTime = new Date().toLocaleString();
-  }
-  isEditModalVisible.value = false;
-};
+  isEditModalVisible.value = false
+}
 
 // 删除评分
 const deleteMovieRating = (record) => {
-  movieRatings.value = movieRatings.value.filter(item => item.key !== record.key);
-};
+  console.log(record)
+  axios.delete(`http://localhost:5000/ratings/${record.user_id}/${record.movie_id}`).then(res=>{
+    console.log(res.data)
+    message.success("删除成功")
+    fetchMovieRatings(authStore?.user.userid)
 
-const addFormData = ref({
-  movie: '',
-  rating: null
-});
+  })
+}
 
-
-const handleAddOk = () => {
-  // 触发表单提交
-  document.querySelector('#addForm').requestSubmit();
-};
-
-
-
-const handleAddFormSubmit = (values) => {
-  const newId = movieRatings.value.length > 0 ? movieRatings.value[movieRatings.value.length - 1].id + 1 : 1;
-  const newRecord = {
-    key: String(newId),
-    id: newId,
-    movie: values.movie,
-    rating: values.rating,
-    ratingTime: new Date().toLocaleString()
-  };
-  movieRatings.value.push(newRecord);
-};
 </script>
 
 <style scoped>

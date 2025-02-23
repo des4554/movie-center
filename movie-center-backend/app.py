@@ -128,6 +128,7 @@ def get_movie_detail(movieId):
         'writers': movie.writers,
         'stars': movie.stars
     }), 201
+
 # 添加电影（管理员功能）
 @app.route('/movies', methods=['POST'])
 def add_movie():
@@ -175,7 +176,40 @@ def get_movie_rating(userId):
         'comment': rating.comment,
         'timestamp': rating.timestamp
     } for rating in ratings])
+#修改用户评分
+@app.route('/ratings/<int:userId>/<int:movieId>', methods=['POST'])
+def updateMovieRating(userId, movieId):
+    rating = Rating.query.filter_by(user_id=userId, movie_id=movieId).first()
+    data = request.get_json()
+    rat = data.get('rating')
+    comment = data.get('comment')
+    if rating:
+        rating.rating = rat
+        rating.comment = comment
+        db.session.commit()
+        return jsonify({'message': 'Rating updated successfully'}), 201
+    else:
+        return jsonify({'message': 'Rating is required'}), 400
 
+#删除用户评分
+@app.route('/ratings/<int:userId>/<int:movieId>', methods=['DELETE'])
+def deleteMovieRating(userId, movieId):
+    # 查询评分记录
+    rating = Rating.query.filter_by(user_id=userId, movie_id=movieId).first()
+
+    # 如果评分记录不存在，返回错误信息
+    if rating is None:
+        return jsonify({'error': 'Rating not found'}), 404
+
+    try:
+        # 删除评分记录
+        db.session.delete(rating)
+        db.session.commit()
+        return jsonify({'message': 'Rating deleted successfully'}), 200
+    except Exception as e:
+        # 如果删除失败，回滚并返回错误信息
+        db.session.rollback()
+        return jsonify({'error': str(e)}), 500
 #修改用户信息
 @app.route('/infoChange', methods=['POST'])
 def infoChange():
