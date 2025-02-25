@@ -3,6 +3,7 @@
     <template #title>
       <h2>基于用户的协同过滤算法和差分隐私算法</h2>
     </template>
+    <a-spin :spinning="loading">
     <div class="movie-list">
       <!-- 循环遍历电影列表 -->
       <div class="movie-item" v-for="movie in movies" :key="movie.movie_id" @click="goToDetail(movie.movie_id)">
@@ -20,8 +21,9 @@
         </div>
       </div>
     </div>
+    </a-spin>
     <div style="text-align: center; margin-top: 16px;">
-      <a-button type="primary" @click="fetchMovies" :loading="loading">换一批</a-button>
+      <a-button type="primary" @click="fetchMovies" >换一批</a-button>
     </div>
   </a-card>
 </template>
@@ -30,6 +32,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
+import router from '@/router'
 
 class Movie {
   'movie_id': number;
@@ -44,7 +47,7 @@ const authStore = useAuthStore()
 const movies = ref<Movie[]>([]);
 const loading = ref(false);
 
-const fetchMovies = async () => {
+const fetchMovies = () => {
   loading.value = true;
   // 模拟从API获取数据
   axios.get(`http://localhost:5000/recommend/${authStore?.user.userid}`)
@@ -67,10 +70,10 @@ const fetchMovies = async () => {
   loading.value = false;
 };
 
-
-onMounted(() => {
-  fetchMovies();
-});
+const goToDetail = (movieId) => {
+  // 跳转到详情页，传递电影ID作为参数
+  router.push('/movie/' + movieId);
+}
 
 </script>
 

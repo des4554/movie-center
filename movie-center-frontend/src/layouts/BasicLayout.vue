@@ -13,6 +13,17 @@
           <component :is="item.icon" />
           <span class="nav-text">{{ item.text }}</span>
         </a-menu-item>
+<!--        <a-divider ></a-divider>-->
+<!--        <div v-if="authStore?.user.role=='admin'">-->
+<!--          <a-menu-item v-for="item in adminMenus" :key="item.key" >-->
+<!--            <component :is="item.icon" />-->
+<!--            <span class="nav-text">{{ item.text }}</span>-->
+<!--          </a-menu-item>-->
+<!--        </div>-->
+        <a-menu-item @click="logout">
+          <LogoutOutlined></LogoutOutlined>
+          <span class="nav-text">登出</span>
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
     <a-layout :style="{ marginLeft: '200px' }">
@@ -30,7 +41,13 @@
 import { ref } from 'vue'
 import {
   VideoCameraOutlined,
-  StarOutlined, LockOutlined, TagOutlined, EditOutlined, LikeOutlined
+  StarOutlined,
+  LockOutlined,
+  TagOutlined,
+  EditOutlined,
+  LikeOutlined,
+  LogoutOutlined,
+  SettingOutlined, TeamOutlined, VideoCameraFilled
 } from '@ant-design/icons-vue'
 import MovieView from '@/views/MovieView.vue'
 import LikeTagsView from '@/views/LikeTagsView.vue'
@@ -39,6 +56,10 @@ import InfoChange from '@/views/InfoChange.vue'
 import RatingView from '@/views/RatingView.vue'
 import { useAuthStore } from '../stores/authStore.ts'
 import RecommandListView from '@/views/RecommandListView.vue'
+import router from '@/router'
+import MovieManageView from '@/views/MovieManageView.vue'
+import UserManageView from '@/views/UserManageView.vue'
+import SettingView from '@/views/SettingView.vue'
 const authStore = useAuthStore()
 console.log(authStore?.user)
 const selectedKeys = ref<string[]>(['1'])
@@ -51,19 +72,27 @@ const menuItems = [
   { key: '4', icon: EditOutlined , text: '修改信息', component: InfoChange },
   { key: '5', icon: LikeOutlined , text: '我的评分', component: RatingView },
 
-
 ]
-
+const adminMenus = ref([
+  { key: '6', icon: VideoCameraFilled, text: '电影管理', component: MovieManageView },
+  { key: '7', icon: TeamOutlined , text: '用户管理', component: UserManageView },
+  { key: '8', icon: SettingOutlined , text: '推荐设置', component: SettingView },
+])
 // 定义当前要显示的组件
 const currentComponent = ref(null)
 // 处理菜单项点击事件
 const handleSelect = (selected) => {
   const key = selected.key
+  // console.log(key)
   // 找到选中菜单项对应的组件
-  const selectedItem = menuItems.find(item => item.key === key)
+  let selectedItem = menuItems.find(item => item.key === key)
   if (selectedItem) {
     currentComponent.value = selectedItem.component
+  } else {
+    selectedItem = adminMenus.value.find(item => item.key === key)
+    currentComponent.value = selectedItem.component
   }
+  // console.log(currentComponent.value)
 }
 // 初始化当前显示的组件
 const initialItem = menuItems.find(item => item.key === selectedKeys.value[0])
@@ -71,6 +100,9 @@ if (initialItem) {
   currentComponent.value = initialItem.component
 }
 
+const logout = ()=>{
+  router.push('/login')
+}
 </script>
 <style scoped>
 

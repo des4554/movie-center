@@ -125,6 +125,7 @@ function handleSearch() {
 }
 
 function goToDetail(movieId) {
+  console.log(movieId)
   // 跳转到详情页，传递电影ID作为参数
   router.push('/movie/' + movieId);
 }

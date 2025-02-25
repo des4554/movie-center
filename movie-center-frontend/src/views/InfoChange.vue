@@ -21,19 +21,19 @@
         </div>
       </a-form-item>
       <a-form-item label="电话" name="phone" :rules="[
-        { required: true, message: '请输入电话号码' },
+        //{ required: true, message: '请输入电话号码' },
         { pattern: /^1[3-9]\d{9}$/, message: '请输入正确的手机号码' }
       ]">
         <a-input v-model:value="formData.phone" placeholder="请输入电话号码" />
       </a-form-item>
       <a-form-item label="邮箱" name="email" :rules="[
-        { required: true, message: '请输入邮箱' },
+        //{ required: true, message: '请输入邮箱' },
         { type: 'email', message: '请输入正确的邮箱地址' }
       ]">
         <a-input v-model:value="formData.email" placeholder="请输入邮箱" />
       </a-form-item>
       <a-form-item label="年龄" name="age" :rules="[
-        { required: true, message: '请输入年龄' },
+        //{ required: true, message: '请输入年龄' },
         { type: 'number', min: 0, max: 150, message: '年龄必须在0到150之间' }
       ]">
         <a-input-number v-model:value="formData.age" placeholder="请输入年龄" />

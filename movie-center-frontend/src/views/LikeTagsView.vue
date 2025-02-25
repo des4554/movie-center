@@ -53,7 +53,7 @@ const movieGenres = ref([
 const checkedList = ref<string[]>(authStore.user?.tags.split(','))
 
 
-function handleSubmit() {
+const handleSubmit = () => {
   console.log('你选择的电影类型是:', checkedList.value)
   //先更新前端user，再发送给后端
   authStore.user = {
