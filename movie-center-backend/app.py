@@ -1,9 +1,11 @@
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request
 from models import db, User, Movie, Rating, MovieDetail
 from config import Config
 from flask_cors import CORS
 import os
-from werkzeug.utils import secure_filename
+
+from algorithms import get_recommend_movies
+
 app = Flask(__name__)
 CORS(app)
 app.config.from_object(Config)
@@ -73,7 +75,20 @@ def register():
 # 获取电影列表
 @app.route('/movies', methods=['GET'])
 def get_movies():
-    movies = Movie.query.all()
+    # 获取查询参数中的 id 列表
+    ids_str = request.args.get('ids')  # 获取字符串形式的 ids
+    if ids_str:
+        ids = [int(id) for id in ids_str.split(',')]  # 将字符串转换为整数列表
+    else:
+        ids = []  # 如果没有传递 ids，返回空列表
+
+    # 根据 id 列表查询电影信息
+    if ids:
+        movies = Movie.query.filter(Movie.movie_id.in_(ids)).all()
+    else:
+        movies = Movie.query.all()  # 如果没有传递 ids，返回所有电影
+
+    # 返回电影信息的 JSON 数据
     return jsonify([{
         'movie_id': movie.movie_id,
         'title': movie.title,
@@ -163,6 +178,8 @@ def get_movie_rating(userId):
 
 @app.route('/ratings/<int:userId>/<int:movieId>', methods=['GET'])
 def get_movie_rating_comment(userId, movieId):
+    http_version = request.environ.get('HTTP_VERSION')
+    print('http_version:', http_version)
     rating = Rating.query.filter_by(user_id=userId, movie_id=movieId).first()
     if rating:
         return jsonify({
@@ -293,6 +310,15 @@ def upload_file():
     # 返回文件访问 URL
     file_url = f'http://localhost:5000/static/avatars/{unique_filename}'
     return jsonify({'success': True, 'url': file_url})
+
+
+@app.route('/recommend/<int:userId>', methods=['GET'])
+def recommend(userId):
+    user = User.query.get(userId)
+    like_tags = user.tags.split(',')
+    movies = get_recommend_movies(userId, like_tags)
+    print(movies)
+    return jsonify(movies)
 
 if __name__ == '__main__':
     app.run(debug=True, static_url_path='/')

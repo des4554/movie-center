@@ -2,11 +2,10 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 import mysql.connector
-from mysql.connector import Error
-import csv
+
 # 1. 数据加载
 # 假设 rating.csv 包含 userId, movieId, rating 字段
-ratings_file = 'IMDBPoster/ml-latest-small/ratings.csv'
+ratings_file = 'static/scripts/IMDBPoster/ml-latest-small/ratings.csv'
 ratings = pd.read_csv(ratings_file)
 
 
@@ -34,7 +33,6 @@ if connection.is_connected():
 
     # 将结果转换为DataFrame
     columns = [col[0] for col in cursor.description]  # 获取列名
-    print(columns)
     global movies
     movies = pd.DataFrame(rows, columns=columns)
     # 提交事务
@@ -116,6 +114,6 @@ def get_recommend_movies(user_id, user_favorite_genres):
         movie_title = movies.loc[movies['movie_id'] == movie_id, 'title'].values[0] if movie_id in movies[
             'movie_id'].values else "Unknown"
         print(f"Movie ID: {movie_id}, 电影名称: {movie_title}, 推荐分数: {score:.2f}")
-    return recommended_movies
+    return recommended_movies[:10]
 
-get_recommend_movies(1, ['Adventure', 'Comic'])
+# get_recommend_movies(1, ['Adventure', 'Comic'])
