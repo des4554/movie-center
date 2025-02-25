@@ -52,15 +52,8 @@ def add_laplace_noise(data, epsilon):
     noise = np.random.laplace(0, scale, data.shape)
     return data + noise
 
-# 设置隐私预算
-epsilon = 0.1  # 隐私预算越小，隐私保护越强，但数据准确性越低
-ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
 
-# 3. 构建用户-电影评分矩阵
-user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
 
-# 4. 计算用户相似度矩阵
-user_similarity = cosine_similarity(user_movie_matrix)
 
 # 5. 基于用户的协同过滤算法
 def predict_ratings(user_id, user_similarity, user_movie_matrix):
@@ -92,8 +85,20 @@ def genre_match_score(genres, favorite_genres):
     match_count = sum(1 for genre in genre_list if genre in favorite_genres)
     return match_count / len(genre_list) if genre_list else 0
 
-
+def normalize_ratings(ratings):
+    """将评分归一化到0-100区间"""
+    min_rating = min(ratings.values())
+    max_rating = max(ratings.values())
+    range_rating = max_rating - min_rating
+    normalized_ratings = {k: (v - min_rating) / range_rating * 100 for k, v in ratings.items()}
+    return normalized_ratings
 def get_recommend_movies(user_id, user_favorite_genres):
+    epsilon = 0.1  # 隐私预算越小，隐私保护越强，但数据准确性越低
+    ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
+
+    user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
+
+    user_similarity = cosine_similarity(user_movie_matrix)
     # 计算电影与用户偏好类型的匹配度
     movies['genre_match'] = movies['genres'].apply(genre_match_score, favorite_genres=user_favorite_genres)
 
@@ -105,15 +110,15 @@ def get_recommend_movies(user_id, user_favorite_genres):
         genre_match = movies.loc[movies['movie_id'] == movie_id, 'genre_match'].values[0]
         predicted_ratings[movie_id] = rating * (1 + genre_match)  # 调整评分
 
+    normalized_predicted_ratings = normalize_ratings(predicted_ratings)
     # 9. 按调整后的评分排序
-    recommended_movies = sorted(predicted_ratings.items(), key=lambda x: x[1], reverse=True)
+    recommended_movies = sorted(normalized_predicted_ratings.items(), key=lambda x: x[1], reverse=True)
 
     # 10. 输出推荐结果
-    print("推荐电影及预测评分：")
     for movie_id, score in recommended_movies[:10]:
         movie_title = movies.loc[movies['movie_id'] == movie_id, 'title'].values[0] if movie_id in movies[
             'movie_id'].values else "Unknown"
-        print(f"Movie ID: {movie_id}, 电影名称: {movie_title}, 推荐分数: {score:.2f}")
+        # print(f"Movie ID: {movie_id}, 电影名称: {movie_title}, 推荐分数: {score:.2f}")
     return recommended_movies[:10]
 
 # get_recommend_movies(1, ['Adventure', 'Comic'])

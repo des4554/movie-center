@@ -1,89 +1,122 @@
 <template>
   <a-card :bordered="true">
     <template #title>
-      <h2>根据您的喜好推荐的10部电影</h2>
+      <h2>基于用户的协同过滤算法和差分隐私算法</h2>
     </template>
-    <a-list item-layout="horizontal" :data-source="movies" :loading="loading">
-      <template #renderItem="{ item }">
-        <a-list-item>
-          <a-list-item-meta :description="item.description">
-            <template #title>
-              <a :href="item.href">{{ item.title }}</a>
-            </template>
-            <template #avatar>
-              <a-avatar :src="item.cover" />
-            </template>
-          </a-list-item-meta>
-        </a-list-item>
-      </template>
-    </a-list>
+    <div class="movie-list">
+      <!-- 循环遍历电影列表 -->
+      <div class="movie-item" v-for="movie in movies" :key="movie.movie_id" @click="goToDetail(movie.movie_id)">
+        <!-- 显示电影海报 -->
+        <!--      <img src="D:\Project\movie-center-frontend\src\assets\poster\a.jpg" alt="Movie Poster" class="movie-poster">-->
+        <img :src="`/poster/${movie.movie_id}.jpg`" alt="Movie Poster" class="movie-poster">
+        <div class="movie-info">
+          <!-- 显示电影名称 -->
+          <h2 class="movie-title">{{ movie.title }}</h2>
+          <!-- 显示电影类别 -->
+          <p class="movie-genre">种类: {{ movie.genres }}</p>
+          <!-- 显示电影评分 -->
+          <p class="movie-rating">评分: {{ movie.rating }}</p>
+          <p class="recommend-score">推荐分数: {{ movie.recommend_score }}</p>
+        </div>
+      </div>
+    </div>
     <div style="text-align: center; margin-top: 16px;">
-      <a-button type="primary" @click="fetchNewMovies">换一批</a-button>
+      <a-button type="primary" @click="fetchMovies" :loading="loading">换一批</a-button>
     </div>
   </a-card>
 </template>
 
-<script>
+<script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { Button, Card, List, Avatar } from 'ant-design-vue';
+import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore.ts'
 
-export default {
-  components: {
-    AButton: Button,
-    ACard: Card,
-    AList: List,
-    AListItem: List.Item,
-    AListItemMeta: List.Item.Meta,
-    AAvatar: Avatar,
-  },
-  setup() {
-    const movies = ref([]);
-    const loading = ref(false);
+class Movie {
+  'movie_id': number;
+  'title': string;
+  'poster_url': string;
+  'description': string;
+  'genres': string;
+  'rating': number;
+  "recommend_score": number;
+}
+const authStore = useAuthStore()
+const movies = ref<Movie[]>([]);
+const loading = ref(false);
 
-    const fetchMovies = async () => {
-      loading.value = true;
-      // 模拟从API获取数据
-      const response = await fetch('https://api.example.com/movies');
-      const data = await response.json();
-      movies.value = data.slice(0, 10);
-      loading.value = false;
-    };
-
-    const fetchNewMovies = () => {
-      fetchMovies();
-    };
-
-    onMounted(() => {
-      fetchMovies();
-    });
-
-    return {
-      movies,
-      loading,
-      fetchNewMovies,
-    };
-  },
+const fetchMovies = async () => {
+  loading.value = true;
+  // 模拟从API获取数据
+  axios.get(`http://localhost:5000/recommend/${authStore?.user.userid}`)
+    .then(res=>{
+      // console.log(res.data)
+      const ids = res.data.map(item => item[0]); // 提取 ID
+      const idsString = ids.join(',');
+      const scores = res.data.map(item => item[1].toFixed(2)); // 提取评分
+      axios.get(`http://localhost:5000/movies`, {params:{
+        ids: idsString
+        }}).then(res => {
+          console.log(res.data)
+          movies.value = res.data
+          for (let i = 0; i < movies.value.length; i++) {
+            movies.value[i].recommend_score = scores[i]
+          }
+          console.log(movies.value)
+      })
+    })
+  loading.value = false;
 };
+
+
+onMounted(() => {
+  fetchMovies();
+});
+
 </script>
 
 <style scoped>
-.ant-card {
+.movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.movie-item {
+  width: 250px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transform-style: preserve-3d; /* 启用 3D 变形 */
+  perspective: 1000px; /* 设置透视视角 */
+}
+
+.movie-item:hover {
+  transform: scale(1.05); /* 3D 变形效果 */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* 增加阴影 */
+}
+
+.movie-poster {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  height: auto;
+  object-fit: cover;
 }
 
-.ant-list-item {
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+.movie-info {
+  padding: 15px;
 }
 
-.ant-list-item:last-child {
-  border-bottom: none;
+.movie-title {
+  margin: 0;
+  font-size: 1.2em;
 }
 
-.ant-avatar {
-  width: 64px;
-  height: 64px;
+.movie-genre,
+.movie-rating {
+  margin: 5px 0;
+  font-size: 0.9em;
+  color: #666;
 }
+
 </style>
