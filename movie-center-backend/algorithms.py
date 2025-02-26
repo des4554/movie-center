@@ -93,7 +93,7 @@ def normalize_ratings(ratings):
     normalized_ratings = {k: (v - min_rating) / range_rating * 100 for k, v in ratings.items()}
     return normalized_ratings
 def get_recommend_movies(user_id, user_favorite_genres):
-    epsilon = 0.1  # 隐私预算越小，隐私保护越强，但数据准确性越低
+    epsilon = 1.0  # 隐私预算越小，隐私保护越强，但数据准确性越低
     ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
 
     user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)

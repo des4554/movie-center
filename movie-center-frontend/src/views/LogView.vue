@@ -56,6 +56,7 @@
             </div>
           </a-form-item>
         </a-form>
+        <a href="/admin/login">管理员登录入口</a>
       </a-card>
     </a-col>
   </a-row>

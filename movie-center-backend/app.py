@@ -240,7 +240,7 @@ def infoChange():
     print("data" + str(data))
     id = data.get('userid')
     user = User.query.get(id)
-    print(user)
+    print("user", user)
     user.username = data.get('username')
     # avatar_url  = user.avatarUrl
     # 删除对应的头像，删不了一点
@@ -319,6 +319,37 @@ def recommend(userId):
     movies = get_recommend_movies(userId, like_tags)
     print(movies)
     return jsonify(movies)
+
+@app.route('/users', methods=['GET'])
+def get_users():
+    users = User.query.all()
+    return jsonify([user.to_dict() for user in users])
+
+@app.route('/user', methods=['POST'])
+def create_user():
+    data = request.get_json()
+    print(data)
+    if User.query.filter_by(username=data.get('username')).first():
+        return jsonify({'success': False,'message': 'Username already exists'}), 400
+    user = User()
+    user.username = data.get('username')
+    user.password = data.get('password')
+    user.email = data.get('email')
+    user.gender = data.get('gender')
+    user.age = data.get('age')
+    user.phone = data.get('phone')
+    user.avatarUrl = data.get('avatar_url')
+    user.tags = data.get('tags')
+    db.session.add(user)
+    db.session.commit()
+    return jsonify(user.to_dict()), 201
+
+@app.route('/user/<int:userId>', methods=['DELETE'])
+def delete_user(userId):
+    user = User.query.get(userId)
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 
 if __name__ == '__main__':
     app.run(debug=True, static_url_path='/')

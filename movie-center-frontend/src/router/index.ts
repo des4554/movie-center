@@ -5,6 +5,8 @@ import RegisterView from '@/views/RegisterView.vue'
 import TestView from '@/views/TestView.vue'
 import MovieDetail from '@/views/MovieDetail.vue'
 import { useAuthStore } from '@/stores/authStore.ts'
+import AdminLoginView from '@/views/admin/AdminLoginView.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -26,6 +28,16 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: RegisterView
+    },
+    {
+      path: '/admin/login',
+      name: 'adminLogin',
+      component: AdminLoginView
+    },
+    {
+      path: '/admin',
+      name: 'admin',
+      component: AdminLayout
     },
     {
       path: '/test',
