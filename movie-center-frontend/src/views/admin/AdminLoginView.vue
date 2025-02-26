@@ -2,7 +2,7 @@
   <div class="login-container">
     <a-card class="login-card" title="管理员登录">
       <!-- 用户名输入框 -->
-      <a-form :model="formState" @finish="onFinish">
+      <a-form :model="formState" @finish="handleLogin">
         <a-form-item
           label="用户名"
           name="username"
@@ -22,7 +22,7 @@
 
         <!-- 登录按钮 -->
         <a-form-item>
-          <a-button type="primary" html-type="submit" block>登录</a-button>
+          <a-button type="primary" html-type="submit" block :loading="loading">登录</a-button>
         </a-form-item>
       </a-form>
 
@@ -35,24 +35,38 @@
 </template>
 
 <script setup lang="ts">
-import {  reactive } from 'vue';
+import {  ref } from 'vue'
 import { message } from 'ant-design-vue';
+import { useAuthStore } from '@/stores/authStore.ts'
+import router from '@/router'
 
+const authStore = useAuthStore();
 
 // 表单数据
-const formState = reactive({
+const formState = ref({
   username: '',
   password: '',
 });
-
-// 登录提交
-const onFinish = (values) => {
-  console.log('提交的表单数据:', values);
-  message.success('登录成功！');
-  // 这里可以添加登录逻辑，比如调用 API
-};
+const loading = ref(false);
 
 
+async function handleLogin() {
+  loading.value = true;
+  try {
+    const success = await authStore.login(formState.value.username, formState.value.password);
+    if (success) {
+      // location.href="/"
+      router.push('/admin');
+      message.success('登录成功！');
+    } else {
+      message.error('登录失败，请检查用户名和密码！');
+    }
+  } catch (err) {
+    message.error('登录失败，请稍后重试！' + err);
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <style scoped>

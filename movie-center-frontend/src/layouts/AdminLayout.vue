@@ -2,6 +2,7 @@
   <a-layout>
     <!-- 侧边栏 -->
     <a-layout-sider :width="200" style="background: #fff">
+      <span>当前管理员：{{ authStore.user?.username }}</span>
       <a-menu
         mode="inline"
         v-model:selectedKeys="selectedKeys"
@@ -44,7 +45,9 @@ import {
   VideoCameraOutlined,
   SettingOutlined,
 } from '@ant-design/icons-vue';
+import { useAuthStore } from '@/stores/authStore.ts'
 
+const authStore = useAuthStore()
 // 默认选中的菜单项
 const selectedKeys = ref(['user-management']);
 
@@ -65,18 +68,4 @@ const currentTabComponent = computed(() => {
 
 <style scoped>
 /* 布局样式 */
-.ant-layout {
-  min-height: 100vh;
-}
-
-.ant-layout-sider {
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
-}
-
-.ant-layout-content {
-  margin: 24px 16px;
-  padding: 24px;
-  background: #fff;
-  min-height: 280px;
-}
 </style>
