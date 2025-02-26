@@ -2,7 +2,9 @@
   <a-layout>
     <!-- 侧边栏 -->
     <a-layout-sider :width="200" style="background: #fff">
-      <span>当前管理员：{{ authStore.user?.username }}</span>
+      <div style="padding: 40px;">
+        <span>当前管理员：{{ authStore.user?.username }}</span>
+      </div>
       <a-menu
         mode="inline"
         v-model:selectedKeys="selectedKeys"
@@ -43,27 +45,27 @@ import { ref, computed, defineAsyncComponent } from 'vue'
 import {
   UserOutlined,
   VideoCameraOutlined,
-  SettingOutlined,
-} from '@ant-design/icons-vue';
+  SettingOutlined
+} from '@ant-design/icons-vue'
 import { useAuthStore } from '@/stores/authStore.ts'
 
 const authStore = useAuthStore()
 // 默认选中的菜单项
-const selectedKeys = ref(['user-management']);
+const selectedKeys = ref(['user-management'])
 
 // 动态组件
 const currentTabComponent = computed(() => {
   switch (selectedKeys.value[0]) {
     case 'user-management':
-      return defineAsyncComponent(() => import('@/views/admin/UserMangeView.vue'));
+      return defineAsyncComponent(() => import('@/views/admin/UserMangeView.vue'))
     case 'movie-management':
-      return defineAsyncComponent(() => import('@/views/admin/MovieManageView.vue'));
+      return defineAsyncComponent(() => import('@/views/admin/MovieManageView.vue'))
     case 'recommendation-settings':
-      return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'));
+      return defineAsyncComponent(() => import('@/views/admin/SettingsView.vue'))
     default:
-      return null;
+      return null
   }
-});
+})
 </script>
 
 <style scoped>

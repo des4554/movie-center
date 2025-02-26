@@ -155,7 +155,7 @@ const formRef = ref(null);
 // 提交表单
 const handleModalOk = async () => {
   try {
-    formRef.value.validate();
+    await formRef.value.validate();
     const url = currentAction.value === 'add' ? 'http://localhost:5000/user' : `http://localhost:5000/infoChange`;
     const method = 'POST';
     // 构造请求体，将 user_id 改为 userid
