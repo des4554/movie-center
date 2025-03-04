@@ -144,24 +144,58 @@ def get_movie_detail(movieId):
         'stars': movie.stars
     }), 201
 
+# 获取所有电影详情信息，管理员功能
+@app.route('/allmovies', methods=['GET'])
+def get_all_movies():
+    movies = MovieDetail.query.all()
+    return jsonify([movie.to_dict() for movie in movies])
+
 # 添加电影（管理员功能）
 @app.route('/movies', methods=['POST'])
 def add_movie():
     data = request.get_json()
-    title = data.get('title')
-    poster_url = data.get('poster_url')
-    description = data.get('description')
-    genres = data.get('genres')
+    name = data.get('name')
+    time = data.get('time')
+    genre = data.get('genre')
+    release_time = data.get('release_time')
+    intro = data.get('intro')
+    directors = data.get('directors')
+    writers = data.get('writers')
+    stars = data.get('stars')
 
-    if not title:
-        return jsonify({'message': 'Title is required'}), 400
-
-    new_movie = Movie(title=title, poster_url=poster_url, description=description, genres=genres)
+    new_movie = MovieDetail(name=name, time=time, genre=genre, release_time=release_time, intro=intro, directors=directors, writers=writers, stars=stars)
     db.session.add(new_movie)
     db.session.commit()
 
     return jsonify({'message': 'Movie added successfully'}), 201
 
+@app.route('/movies/<int:movieId>', methods=['PUT'])
+def update_movie(movieId):
+    data = request.get_json()
+    movie = MovieDetail.query.get(movieId)
+    movie.name = data.get('name')
+    movie.time = data.get('time')
+    movie.genre = data.get('genre')
+    movie.release_time = data.get('release_time')
+    movie.intro = data.get('intro')
+    movie.directors = data.get('directors')
+    movie.writers = data.get('writers')
+    movie.stars = data.get('stars')
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'message': 'Movie info changed successfully'
+    }), 201
+
+@app.route('/movies/<int:movieId>', methods=['DELETE'])
+def delete_movie(movieId):
+    movie = MovieDetail.query.get(movieId)
+    db.session.delete(movie)
+    db.session.commit()
+    return jsonify({
+        'success': True,
+        'message': 'Movie deleted successfully'
+    })
 #获取用户评分
 @app.route('/ratings/<int:userId>', methods=['GET'])
 def get_movie_rating(userId):

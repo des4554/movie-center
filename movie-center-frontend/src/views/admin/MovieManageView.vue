@@ -24,7 +24,6 @@
       v-model:visible="modalVisible"
       :title="modalTitle"
       @ok="handleModalOk"
-      @cancel="handleModalCancel"
     >
       <a-form ref="formRef" :model="formState" :label-col="{ span: 6 }" :wrapper-col="{ span: 16 }">
         <a-form-item label="电影名称" name="name" :rules="[{ required: true, message: '请输入电影名称' }]">

@@ -45,6 +45,16 @@ class Movie(db.Model):
     def __repr__(self):
         return f'<Movie {self.title}>'
 
+    def to_dict(self):
+        return {
+            'movie_id': self.movie_id,
+            'title': self.title,
+            'poster_url': self.poster_url,
+            'description': self.description,
+            'genres': self.genres,
+            'rating': self.rating,
+        }
+
 # 定义电影详情表模型
 class MovieDetail(db.Model):
     __tablename__ = 'movie_detail'  # 表名
@@ -63,6 +73,20 @@ class MovieDetail(db.Model):
 
     def __repr__(self):
         return f"<MovieDetail(id={self.id}, name={self.name}, genre={self.genre})>"
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'url': self.url,
+            'time': self.time,
+            'genre': self.genre,
+            'release_time': self.release_time,
+            'intro': self.intro,
+            'directors': self.directors,
+            'writers': self.writers,
+            'stars': self.stars,
+        }
 class Rating(db.Model):
     """评分表"""
     __tablename__ = 'ratings'

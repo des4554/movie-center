@@ -28,6 +28,13 @@
           </template>
           推荐系统设置
         </a-menu-item>
+        <!-- 退出登录 -->
+        <a-menu-item key="logout" @click="handleLogout">
+          <template #icon>
+            <logout-outlined />
+          </template>
+          退出登录
+        </a-menu-item>
       </a-menu>
     </a-layout-sider>
 
@@ -45,9 +52,11 @@ import { ref, computed, defineAsyncComponent } from 'vue'
 import {
   UserOutlined,
   VideoCameraOutlined,
-  SettingOutlined
+  SettingOutlined,
+  LogoutOutlined
 } from '@ant-design/icons-vue'
 import { useAuthStore } from '@/stores/authStore.ts'
+import router from '@/router'
 
 const authStore = useAuthStore()
 // 默认选中的菜单项
@@ -66,6 +75,11 @@ const currentTabComponent = computed(() => {
       return null
   }
 })
+
+const handleLogout = ()=>{
+  authStore.logout();
+  router.push('/admin/login')
+}
 </script>
 
 <style scoped>
