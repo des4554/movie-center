@@ -352,4 +352,4 @@ def delete_user(userId):
     return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True, static_url_path='/')
+    app.run(debug=True)

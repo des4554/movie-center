@@ -1,0 +1,9 @@
+beautifulsoup4==4.12.3
+Flask==3.0.3
+Flask-Cors==5.0.0
+Flask-SQLAlchemy==3.0.2
+mysql-connector-python==8.4.0
+pymysql==1.1.1
+numpy
+pandas
+scikit-learin
