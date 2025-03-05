@@ -82,18 +82,34 @@ const adminMenus = ref([
 const currentComponent = ref(null)
 // 处理菜单项点击事件
 const handleSelect = (selected) => {
-  const key = selected.key
-  // console.log(key)
-  // 找到选中菜单项对应的组件
-  let selectedItem = menuItems.find(item => item.key === key)
+  const key = selected.key;
+
+  // 尝试从 menuItems 找到选中的菜单项
+  let selectedItem = menuItems.find(item => item.key === key);
+
   if (selectedItem) {
-    currentComponent.value = selectedItem.component
+    // 如果找到了对应的菜单项，则设置 currentComponent
+    if (selectedItem.component) {
+      currentComponent.value = selectedItem.component;
+    } else {
+      console.error(`Selected menu item with key ${key} does not have a component.`);
+    }
   } else {
-    selectedItem = adminMenus.value.find(item => item.key === key)
-    currentComponent.value = selectedItem.component
+    // 如果在 menuItems 中没有找到，尝试从 adminMenus 中查找
+    selectedItem = adminMenus.value.find(item => item.key === key);
+
+    if (selectedItem) {
+      // 同样地，在设置 currentComponent 之前检查是否存在 component 属性
+      if (selectedItem.component) {
+        currentComponent.value = selectedItem.component;
+      } else {
+        console.error(`Selected admin menu item with key ${key} does not have a component.`);
+      }
+    } else {
+      console.error(`Could not find a menu item or admin menu item with key ${key}.`);
+    }
   }
-  // console.log(currentComponent.value)
-}
+};
 // 初始化当前显示的组件
 const initialItem = menuItems.find(item => item.key === selectedKeys.value[0])
 if (initialItem) {
