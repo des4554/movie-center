@@ -1,10 +1,14 @@
+from collections import defaultdict
+
 from flask import Flask, jsonify, request
+from sqlalchemy import func
+
 from models import db, User, Movie, Rating, MovieDetail
 from config import Config
 from flask_cors import CORS
 import os
 
-from algorithms import get_recommend_movies
+from algorithms import get_recommend_movies, EPSILON
 
 app = Flask(__name__)
 CORS(app)
@@ -349,7 +353,10 @@ def upload_file():
 @app.route('/recommend/<int:userId>', methods=['GET'])
 def recommend(userId):
     user = User.query.get(userId)
-    like_tags = user.tags.split(',')
+    if user.tags is None:
+        like_tags = []
+    else:
+        like_tags = user.tags.split(',')
     movies = get_recommend_movies(userId, like_tags)
     print(movies)
     return jsonify(movies)
@@ -385,5 +392,48 @@ def delete_user(userId):
     db.session.commit()
     return jsonify({'success': True, 'message': 'User deleted successfully'}), 200
 
+
+@app.route('/getSysData', methods=['GET'])
+def get_sysData():
+    # 定义分数段
+    rating_bins = [i * 0.5 for i in range(11)]  # [0, 0.5, 1, 1.5, ..., 5]
+
+    # 初始化分数段和对应的电影数量列表
+    rating_labels = []
+    rating_counts = []
+
+    # 统计每个分数段的电影数量
+    for i in range(len(rating_bins) - 1):
+        lower = rating_bins[i]
+        upper = rating_bins[i + 1]
+        count = db.session.query(func.count(Movie.movie_id)).filter(
+            Movie.rating >= lower,
+            Movie.rating < upper
+        ).scalar()
+        rating_labels.append(f"{lower}-{upper}")
+        rating_counts.append(count)
+
+    # 查询所有用户的 tags 字段
+    users = User.query.all()
+
+    # 统计每个种类的用户数量
+    tag_count = defaultdict(int)
+    for user in users:
+        if user.tags:
+            tags = user.tags.split(',')  # 将逗号分隔的字符串拆分为列表
+            for tag in tags:
+                tag_count[tag] += 1  # 去除空格并统计
+
+    # 转换为对象列表
+    tags = [{"name": tag, "value": count} for tag, count in tag_count.items()]
+    return jsonify({'success': True, 'stats':{
+        'movieCount': Movie.query.count(),
+        'userCount': User.query.count(),
+        'averageRating': db.session.query(func.avg(Movie.rating)).scalar(),
+        'epsilon': EPSILON,
+        'rating_labels': rating_labels,
+        'rating_counts': rating_counts,
+        'tags': tags
+    }})
 if __name__ == '__main__':
     app.run(debug=True, static_url_path='/')
