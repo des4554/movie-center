@@ -8,12 +8,12 @@ import mysql.connector
 ratings_file = 'static/scripts/IMDBPoster/ml-latest-small/ratings.csv'
 ratings = pd.read_csv(ratings_file)
 
-
+EPSILON = 1.0
 # 连接到MySQL数据库
 connection = mysql.connector.connect(
     host='localhost',       # 数据库主机地址
     user='root',    # 数据库用户名
-    password='123456',# 数据库密码
+    password='123456',  # 数据库密码
     database='movie_com'     # 数据库名称
 )
 
@@ -93,7 +93,7 @@ def normalize_ratings(ratings):
     normalized_ratings = {k: (v - min_rating) / range_rating * 100 for k, v in ratings.items()}
     return normalized_ratings
 def get_recommend_movies(user_id, user_favorite_genres):
-    epsilon = 1.0  # 隐私预算越小，隐私保护越强，但数据准确性越低
+    epsilon = EPSILON # 隐私预算越小，隐私保护越强，但数据准确性越低
     ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
 
     user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
