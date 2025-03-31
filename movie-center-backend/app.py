@@ -112,16 +112,16 @@ def search():
 
     # 过滤电影
     filtered_movies = Movie.query.all()
+    print(search_name, search_genre, search_rating)
     # for movie in filtered_movies:
-    #     print(movie.title)
+    #     print(movie.to_dict())
     if search_name:
         filtered_movies = [m for m in filtered_movies if search_name in m.title.lower()]
     if search_genre:
         filtered_movies = [m for m in filtered_movies if search_genre in m.genres.lower()]
     if search_rating:
-        filtered_movies = [m for m in filtered_movies if m.rating >= search_rating]
-    # for movie in filtered_movies:
-    #     print(movie.title)
+        filtered_movies = [m for m in filtered_movies if m.safe_rating >= search_rating]
+
     return jsonify([{
         'movie_id': movie.movie_id,
         'title': movie.title,
@@ -167,8 +167,9 @@ def add_movie():
     writers = data.get('writers')
     stars = data.get('stars')
 
-    new_movie = MovieDetail(name=name, time=time, genre=genre, release_time=release_time, intro=intro, directors=directors, writers=writers, stars=stars)
-    db.session.add(new_movie)
+    new_movie_detail = MovieDetail(name=name, time=time, genre=genre, release_time=release_time, intro=intro, directors=directors, writers=writers, stars=stars)
+    # new_movie = Movie(title=name, description=intro, genres=genre, rating)
+    db.session.add(new_movie_detail)
     db.session.commit()
 
     return jsonify({'message': 'Movie added successfully'}), 201

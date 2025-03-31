@@ -4,18 +4,17 @@
     <!-- 搜索栏 -->
     <div class="search-container">
       <!-- 电影名搜索输入框 -->
-      <a-input-search
+      <span class="search-label">名称</span>
+      <a-input
         v-model:value="searchName"
-        placeholder="请输入电影名"
         style="width: 200px; margin-right: 10px"
-        @search="handleSearch"
       />
       <!-- 种类选择下拉框 -->
+      <span class="search-label">类型</span>
       <a-select
         v-model:value="searchGenre"
         placeholder="请选择种类"
         style="width: 200px; margin-right: 10px"
-        @change="handleSearch"
       >
         <!-- 动态生成种类选项 -->
         <a-select-option v-for="genre in genres" :key="genre" :value="genre">
@@ -23,14 +22,21 @@
         </a-select-option>
       </a-select>
       <!-- 评分搜索输入框 -->
+      <span class="search-label">评分</span>
+
       <a-input-number
         v-model:value="searchRating"
-        placeholder="请输入评分"
+        :min="0"
+        :max="5"
+        :step="0.1"
+        placeholder="0-5分"
         style="width: 200px; margin-right: 10px"
-        @change="handleSearch"
       />
+<!--      清空按钮-->
+      <a-button @click="handleReset">重置</a-button>
+
       <!-- 搜索按钮 -->
-      <a-button @click="handleSearch">搜索</a-button>
+      <a-button @click="handleSearch" type="primary">搜索</a-button>
     </div>
   </a-layout-header>
   <div class="movie-list">
@@ -111,12 +117,9 @@ function handleSearch() {
     genre: searchGenre.value,
     rating: searchRating.value
   };
-  console.log('hello')
   // 使用axios发送GET请求
   axios.get('http://127.0.0.1:5000/movies/search', { params })
     .then(response => {
-      console.log(response.data);  // 处理返回的电影数据
-      // 这里你可以将返回的数据赋值给某个变量，用于显示
       movies.value = response.data;
     })
     .catch(error => {
@@ -124,8 +127,13 @@ function handleSearch() {
     });
 }
 
+function handleReset() {
+  searchName.value = '';
+    searchGenre.value = '';
+    searchRating.value = 0.0;
+}
+
 function goToDetail(movieId) {
-  console.log(movieId)
   // 跳转到详情页，传递电影ID作为参数
   router.push('/movie/' + movieId);
 }
@@ -140,7 +148,7 @@ function goToDetail(movieId) {
 }
 
 .movie-item {
-  width: 250px;
+  width: 16%;
   cursor: pointer;
   border: 1px solid #ddd;
   border-radius: 8px;

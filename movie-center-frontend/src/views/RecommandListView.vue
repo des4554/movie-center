@@ -85,7 +85,7 @@ const goToDetail = (movieId) => {
 }
 
 .movie-item {
-  width: 250px;
+  width: 18%;
   cursor: pointer;
   border: 1px solid #ddd;
   border-radius: 8px;
