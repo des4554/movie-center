@@ -73,7 +73,10 @@
 import { computed, ref } from 'vue'
 import axios from 'axios'
 import { useRouter } from 'vue-router'
-
+import { message } from 'ant-design-vue'
+import { useAuthStore } from '@/stores/authStore.ts'
+import { addBrowseHistory } from '@/api/history.ts'
+const authStore = useAuthStore()
 const router = useRouter()
 //test
 // 定义电影数据
@@ -121,6 +124,7 @@ function handleSearch() {
   axios.get('http://127.0.0.1:5000/movies/search', { params })
     .then(response => {
       movies.value = response.data;
+      message.success("一共搜索到"+ response.data.length+"部电影");
     })
     .catch(error => {
       console.error("搜索失败:", error);
@@ -130,10 +134,32 @@ function handleSearch() {
 function handleReset() {
   searchName.value = '';
     searchGenre.value = '';
-    searchRating.value = 0.0;
+    searchRating.value = 3;
 }
 
+function add8HoursToISOTime() {
+  const date = new Date();
+  // 解析出原始的小时部分
+  let hours = date.getUTCHours() + 8; // 增加8小时
+  if (hours >= 24) { // 如果小时数超过24小时，则需要调整日期
+    hours -= 24;
+    date.setDate(date.getDate() + 1); // 增加一天
+  }
+  // 使用setUTCHours确保我们只修改小时部分，并保持其他部分不变
+  date.setUTCHours(hours, date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+  // 返回更新后的ISO格式字符串
+  return date.toISOString();
+}
 function goToDetail(movieId) {
+  //添加一条电影浏览记录
+  const obj = {
+    user_id : authStore.user.userid,
+    movie_id: movieId,
+    time: add8HoursToISOTime(),
+  }
+  addBrowseHistory(obj).then(res=>{
+    console.log(res)
+  })
   // 跳转到详情页，传递电影ID作为参数
   router.push('/movie/' + movieId);
 }

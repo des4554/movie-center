@@ -88,6 +88,7 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null;
   }
 
+
   return {
     user,
     login,
@@ -95,4 +96,6 @@ export const useAuthStore = defineStore('auth', () => {
     register,
     adminLogin
   };
+}, {
+  persist: true,
 });

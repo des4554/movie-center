@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router'
 import Antd from 'ant-design-vue';
 import 'ant-design-vue/dist/reset.css';
-
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
 // 自定义警告处理函数
 const originalWarnHandler = console.warn; // 保存原始的 console.warn
 console.warn = function (msg, ...args) {
@@ -17,6 +17,7 @@ console.warn = function (msg, ...args) {
 };
 const app = createApp(App)
 const pinia = createPinia()
+pinia.use(piniaPluginPersistedstate)
 app.use(pinia)
 app.use(router)
 app.use(Antd)

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>电影评分列表</h2>
+    <h2 style="margin-bottom: 20px">电影评分列表</h2>
     <a-table :columns="columns" :data-source="movieRatings">
       <template #operation="{ record }">
         <a-button @click="editMovieRating(record)">修改评分</a-button>

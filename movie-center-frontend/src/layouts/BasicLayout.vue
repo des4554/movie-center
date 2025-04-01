@@ -47,7 +47,7 @@ import {
   EditOutlined,
   LikeOutlined,
   LogoutOutlined,
-  SettingOutlined, TeamOutlined, VideoCameraFilled
+  SettingOutlined, TeamOutlined, VideoCameraFilled, ClockCircleOutlined
 } from '@ant-design/icons-vue'
 import MovieView from '@/views/MovieView.vue'
 import LikeTagsView from '@/views/LikeTagsView.vue'
@@ -60,6 +60,7 @@ import router from '@/router'
 import MovieManageView from '@/views/MovieManageView.vue'
 import UserManageView from '@/views/UserManageView.vue'
 import SettingView from '@/views/SettingView.vue'
+import BrowseHistory from '@/views/BrowseHistory.vue'
 const authStore = useAuthStore()
 console.log(authStore?.user)
 const selectedKeys = ref<string[]>(['1'])
@@ -71,6 +72,7 @@ const menuItems = [
   { key: '3', icon: LockOutlined , text: '修改密码', component: PWDChangeView },
   { key: '4', icon: EditOutlined , text: '修改信息', component: InfoChange },
   { key: '5', icon: LikeOutlined , text: '我的评分', component: RatingView },
+  { key: '6', icon: ClockCircleOutlined , text: '浏览历史', component: BrowseHistory },
 
 ]
 const adminMenus = ref([

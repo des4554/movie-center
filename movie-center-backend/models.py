@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import Numeric
 
 db = SQLAlchemy()
 
@@ -41,7 +42,11 @@ class Movie(db.Model):
     poster_url = db.Column(db.String(200))
     description = db.Column(db.Text)
     genres = db.Column(db.String(100))
-    rating = db.Column(db.Float)
+    rating = db.Column(Numeric(2, 1))  # DECIMAL(2,1)
+
+    @property
+    def safe_rating(self):
+        return float(self.rating) if self.rating is not None else 0.0
     def __repr__(self):
         return f'<Movie {self.title}>'
 
@@ -52,7 +57,7 @@ class Movie(db.Model):
             'poster_url': self.poster_url,
             'description': self.description,
             'genres': self.genres,
-            'rating': self.rating,
+            'rating': float(self.rating) if self.rating is not None else None,  # 转成 float
         }
 
 # 定义电影详情表模型
@@ -99,3 +104,19 @@ class Rating(db.Model):
 
     def __repr__(self):
         return f'<Rating {self.rating}>'
+
+
+class Browse(db.Model):
+    __tablename__ = 'browse_history'
+    browse_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer)
+    movie_id = db.Column(db.Integer)
+    time = db.Column(db.DateTime)
+
+    def to_dict(self):
+        return {
+            'browse_id': self.browse_id,
+            'user_id': self.user_id,
+            'movie_id': self.movie_id,
+            'time': self.time,
+        }

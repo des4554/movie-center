@@ -1,9 +1,10 @@
+from datetime import datetime
 from collections import defaultdict
 
 from flask import Flask, jsonify, request
 from sqlalchemy import func
 
-from models import db, User, Movie, Rating, MovieDetail
+from models import db, User, Movie, Rating, MovieDetail, Browse
 from config import Config
 from flask_cors import CORS
 import os
@@ -436,5 +437,35 @@ def get_sysData():
         'rating_counts': rating_counts,
         'tags': tags
     }})
+
+
+
+@app.route('/addBrowse', methods=['POST'])
+def add_browse():
+    data = request.get_json()
+    print(data)
+    br = Browse()
+    br.user_id = data.get('user_id')
+    br.movie_id = data.get('movie_id')
+    dt = datetime.strptime(data.get('time'), "%Y-%m-%dT%H:%M:%S.%fZ")
+    br.time = dt.strftime("%Y-%m-%d %H:%M:%S")
+    db.session.add(br)
+    db.session.commit()
+    return jsonify({'success': True, 'data': data})
+
+
+@app.get('/browse/history/<int:userid>')
+def browse_history(userid):
+    try:
+        # 实际查询
+        records = Browse.query.filter(Browse.user_id == userid).order_by(Browse.time.desc()).all()
+        return jsonify({
+            'success': True,
+            'data': [r.to_dict() for r in records]
+        })
+    except Exception as e:
+        print(f"错误: {str(e)}")  # 打印异常
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 if __name__ == '__main__':
     app.run(debug=True, static_url_path='/')
