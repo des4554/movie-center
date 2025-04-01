@@ -113,7 +113,7 @@ fetchMovies();
 
 const searchName = ref('')
 const searchGenre = ref('')
-const searchRating = ref(0)
+const searchRating = ref(3)
 function handleSearch() {
   const params = {
     name: searchName.value,
