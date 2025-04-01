@@ -149,6 +149,12 @@ def get_movie_detail(movieId):
         'stars': movie.stars
     }), 201
 
+#搜索电影普通信息
+@app.route('/movieinfo/<int:movieId>', methods=['GET'])
+def get_movie_info(movieId):
+    movie = Movie.query.get(movieId)
+    return jsonify(movie.to_dict())
+
 # 获取所有电影详情信息，管理员功能
 @app.route('/allmovies', methods=['GET'])
 def get_all_movies():
@@ -202,6 +208,7 @@ def delete_movie(movieId):
         'success': True,
         'message': 'Movie deleted successfully'
     })
+
 #获取用户评分
 @app.route('/ratings/<int:userId>', methods=['GET'])
 def get_movie_rating(userId):
