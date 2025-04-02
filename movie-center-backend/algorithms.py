@@ -92,15 +92,32 @@ def normalize_ratings(ratings):
     range_rating = max_rating - min_rating
     normalized_ratings = {k: (v - min_rating) / range_rating * 100 for k, v in ratings.items()}
     return normalized_ratings
-def get_recommend_movies(user_id, user_favorite_genres):
+def get_recommend_movies(user_id, user_favorite_genres, user_browse_history):
     epsilon = EPSILON # 隐私预算越小，隐私保护越强，但数据准确性越低
     ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
 
     user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
 
     user_similarity = cosine_similarity(user_movie_matrix)
+
+    # 计算用户浏览历史的类型权重
+    total_views = sum(user_browse_history.values())
+    genre_weights = {genre: count / total_views for genre, count in user_browse_history.items()}
+
+
+
     # 计算电影与用户偏好类型的匹配度
-    movies['genre_match'] = movies['genres'].apply(genre_match_score, favorite_genres=user_favorite_genres)
+    def enhanced_genre_match(genres):
+        genre_list = genres.split('|')
+        match_score = 0
+        for genre in genre_list:
+            if genre in user_favorite_genres:
+                match_score += 1
+            if genre in genre_weights:
+                match_score += genre_weights[genre] * 2  #浏览权重加成
+        return match_score / len(genre_list) if genre_list else 0
+
+    movies['genre_match'] = movies['genres'].apply(enhanced_genre_match)
 
     # 7. 预测用户对未评分电影的评分
     predicted_ratings = predict_ratings(user_id, user_similarity, user_movie_matrix)

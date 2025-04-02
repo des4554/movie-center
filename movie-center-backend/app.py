@@ -366,7 +366,22 @@ def recommend(userId):
         like_tags = []
     else:
         like_tags = user.tags.split(',')
-    movies = get_recommend_movies(userId, like_tags)
+    records = Browse.query.filter_by(user_id=userId).all()
+
+    # 获取user_browse_history键值对
+    movie_views = defaultdict(int)
+    for record in records:
+        movie_views[record.movie_id] += 1
+    user_browse_history = defaultdict(int)
+    for movie_id, cnt in movie_views.items():
+        movie = Movie.query.filter_by(movie_id=movie_id).first()
+        genres = movie.genres
+        for genre in genres.split('|'):
+            user_browse_history[genre] += cnt   #累加该类型的浏览次数
+    user_browse_history = dict(user_browse_history) #转化为普通字典
+
+    print(user_browse_history)
+    movies = get_recommend_movies(userId, like_tags, user_browse_history)
     print(movies)
     return jsonify(movies)
 

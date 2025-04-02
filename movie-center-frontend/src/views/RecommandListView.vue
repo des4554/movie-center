@@ -32,7 +32,9 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
-import router from '@/router'
+import { addBrowseHistory } from '@/api/history.ts'
+import { useRouter } from 'vue-router'
+const router = useRouter()
 
 
 
@@ -84,9 +86,31 @@ const fetchMovies = () => {
     })
 };
 
+function add8HoursToISOTime() {
+  const date = new Date();
+  // 解析出原始的小时部分
+  let hours = date.getUTCHours() + 8; // 增加8小时
+  if (hours >= 24) { // 如果小时数超过24小时，则需要调整日期
+    hours -= 24;
+    date.setDate(date.getDate() + 1); // 增加一天
+  }
+  // 使用setUTCHours确保我们只修改小时部分，并保持其他部分不变
+  date.setUTCHours(hours, date.getUTCMinutes(), date.getUTCSeconds(), date.getUTCMilliseconds());
+  // 返回更新后的ISO格式字符串
+  return date.toISOString();
+}
 const goToDetail = (movieId) => {
-  // 跳转到详情页，传递电影ID作为参数
   router.push('/movie/' + movieId);
+
+  // 添加一条电影浏览记录
+  const obj = {
+    user_id : authStore.user.userid,
+    movie_id: movieId,
+    time: add8HoursToISOTime(),
+  }
+  addBrowseHistory(obj).then(res=>{
+    console.log(res)
+  })
 }
 
 </script>
