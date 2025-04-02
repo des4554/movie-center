@@ -4,39 +4,46 @@
     <!-- 搜索栏 -->
     <div class="search-container">
       <!-- 电影名搜索输入框 -->
-      <span class="search-label">名称</span>
-      <a-input
-        v-model:value="searchName"
-        style="width: 200px; margin-right: 10px"
-      />
+      <div class="search-item">
+        <span class="search-label">名称</span>
+        <a-input
+          v-model:value="searchName"
+          class="search-input"
+        />
+      </div>
+
       <!-- 种类选择下拉框 -->
-      <span class="search-label">类型</span>
-      <a-select
-        v-model:value="searchGenre"
-        placeholder="请选择种类"
-        style="width: 200px; margin-right: 10px"
-      >
-        <!-- 动态生成种类选项 -->
-        <a-select-option v-for="genre in genres" :key="genre" :value="genre">
-          {{ genre }}
-        </a-select-option>
-      </a-select>
+      <div class="search-item">
+        <span class="search-label">类型</span>
+        <a-select
+          v-model:value="searchGenre"
+          placeholder="请选择种类"
+          class="search-input"
+        >
+          <a-select-option v-for="genre in genres" :key="genre" :value="genre">
+            {{ genre }}
+          </a-select-option>
+        </a-select>
+      </div>
+
       <!-- 评分搜索输入框 -->
-      <span class="search-label">评分</span>
+      <div class="search-item">
+        <span class="search-label">评分</span>
+        <a-input-number
+          v-model:value="searchRating"
+          :min="0"
+          :max="5"
+          :step="0.1"
+          placeholder="0-5分"
+          class="search-input"
+        />
+      </div>
 
-      <a-input-number
-        v-model:value="searchRating"
-        :min="0"
-        :max="5"
-        :step="0.1"
-        placeholder="0-5分"
-        style="width: 200px; margin-right: 10px"
-      />
-<!--      清空按钮-->
-      <a-button @click="handleReset">重置</a-button>
-
-      <!-- 搜索按钮 -->
-      <a-button @click="handleSearch" type="primary">搜索</a-button>
+      <!-- 按钮组 -->
+      <div class="button-group">
+        <a-button @click="handleReset">重置</a-button>
+        <a-button @click="handleSearch" type="primary">搜索</a-button>
+      </div>
     </div>
   </a-layout-header>
   <div class="movie-list">
@@ -217,10 +224,72 @@ function goToDetail(movieId) {
   align-items: center;
   background: white;
 }
+/* 基础样式 */
 .search-container {
   display: flex;
-  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
   align-items: center;
-  gap: 20px;
+  padding: 16px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  flex: 1;
+}
+
+.search-label {
+  margin-right: 8px;
+  white-space: nowrap;
+  color: #333;
+  font-weight: 500;
+}
+
+.search-input {
+  flex: 1;
+  min-width: 120px;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+  .search-item {
+    min-width: 100%;
+  }
+
+  .button-group {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .search-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .search-label {
+    margin-right: 0;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .button-group {
+    justify-content: space-between;
+  }
 }
 </style>
