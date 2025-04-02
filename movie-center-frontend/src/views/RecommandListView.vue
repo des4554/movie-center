@@ -23,7 +23,7 @@
     </div>
     </a-spin>
     <div style="text-align: center; margin-top: 16px;">
-      <a-button type="primary" @click="fetchMovies" >{{ first ? "生成推荐内容" : "换一批" }}</a-button>
+      <a-button type="primary" @click="fetchMovies" :loading="loading">{{ first ? "生成推荐内容" : "换一批" }}</a-button>
     </div>
   </a-card>
 </template>
@@ -33,6 +33,8 @@ import { ref, onMounted } from 'vue';
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
 import router from '@/router'
+
+
 
 class Movie {
   'movie_id': number;
@@ -47,6 +49,7 @@ const authStore = useAuthStore()
 const movies = ref(authStore.recommendMovies)
 const loading = ref(false);
 const first = ref(true);
+
 onMounted(()=>{
   if (movies.value.length > 0) {
     first.value = false
@@ -76,9 +79,9 @@ const fetchMovies = () => {
           }
           first.value = false
           console.log(movies.value)
+          loading.value = false;
       })
     })
-  loading.value = false;
 };
 
 const goToDetail = (movieId) => {
