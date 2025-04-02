@@ -13,7 +13,7 @@ EPSILON = 1.0
 connection = mysql.connector.connect(
     host='localhost',       # 数据库主机地址
     user='root',    # 数据库用户名
-    password='123456',# 数据库密码
+    password='123456',  # 数据库密码
     database='movie_com'     # 数据库名称
 )
 
