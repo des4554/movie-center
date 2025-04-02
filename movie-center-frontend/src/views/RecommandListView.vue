@@ -23,7 +23,7 @@
     </div>
     </a-spin>
     <div style="text-align: center; margin-top: 16px;">
-      <a-button type="primary" @click="fetchMovies" >换一批</a-button>
+      <a-button type="primary" @click="fetchMovies" >{{ first ? "生成推荐内容" : "换一批" }}</a-button>
     </div>
   </a-card>
 </template>
@@ -44,9 +44,17 @@ class Movie {
   "recommend_score": number;
 }
 const authStore = useAuthStore()
-const movies = ref<Movie[]>([]);
+const movies = ref(authStore.recommendMovies)
 const loading = ref(false);
-
+const first = ref(true);
+onMounted(()=>{
+  if (movies.value.length > 0) {
+    first.value = false
+  } else {
+    first.value = true
+    //fetchMovies()
+  }
+})
 const fetchMovies = () => {
   loading.value = true;
   // 模拟从API获取数据
@@ -61,9 +69,12 @@ const fetchMovies = () => {
         }}).then(res => {
           console.log(res.data)
           movies.value = res.data
+          authStore.recommendMovies = res.data
           for (let i = 0; i < movies.value.length; i++) {
             movies.value[i].recommend_score = scores[i]
+            authStore.recommendMovies[i].recommend_score = scores[i]
           }
+          first.value = false
           console.log(movies.value)
       })
     })

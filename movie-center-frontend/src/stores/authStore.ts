@@ -85,11 +85,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   // 登出方法
   function logout() {
+    recommendMovies.value = []
     user.value = null;
   }
 
 
+  //推荐电影列表
+  const recommendMovies = ref([]);
+
   return {
+    recommendMovies,
     user,
     login,
     logout,
