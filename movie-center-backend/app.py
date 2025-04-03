@@ -212,7 +212,7 @@ def delete_movie(movieId):
 #获取用户评分
 @app.route('/ratings/<int:userId>', methods=['GET'])
 def get_movie_rating(userId):
-    ratings = Rating.query.filter_by(user_id=userId).all()
+    ratings = Rating.query.filter(Rating.user_id == userId).order_by(Rating.timestamp.desc()).all()
     return jsonify([{
         'message': 'get ratings successfully',
         'rating_id': rating.rating_id,
@@ -380,9 +380,14 @@ def recommend(userId):
             user_browse_history[genre] += cnt   #累加该类型的浏览次数
     user_browse_history = dict(user_browse_history) #转化为普通字典
 
-    print(user_browse_history)
-    movies = get_recommend_movies(userId, like_tags, user_browse_history)
-    print(movies)
+    # 获取用户的评分历史
+    user_ratings = Rating.query.filter_by(user_id=userId).all()
+    user_rating_dict = dict()
+    for rating in user_ratings:
+        user_rating_dict[rating.movie_id] = rating.rating
+    # print(user_rating_dict)
+    movies = get_recommend_movies(userId, like_tags, user_browse_history, user_rating_dict)
+    # print(movies)
     return jsonify(movies)
 
 @app.route('/users', methods=['GET'])

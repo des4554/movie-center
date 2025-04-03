@@ -92,11 +92,25 @@ def normalize_ratings(ratings):
     range_rating = max_rating - min_rating
     normalized_ratings = {k: (v - min_rating) / range_rating * 100 for k, v in ratings.items()}
     return normalized_ratings
-def get_recommend_movies(user_id, user_favorite_genres, user_browse_history):
+def get_recommend_movies(user_id, user_favorite_genres, user_browse_history, user_rating_dict):
     epsilon = EPSILON # 隐私预算越小，隐私保护越强，但数据准确性越低
-    ratings['rating'] = add_laplace_noise(ratings['rating'].values, epsilon)
-
-    user_movie_matrix = ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
+    print("ratings", ratings)
+    # 向ratings新增用户自己的评分历史
+    new_rows = []
+    for movie_id, rating in user_rating_dict.items():
+        new_rows.append({
+            'userId': user_id,
+            'movieId': movie_id,
+            'rating': rating,
+            'timestamp': pd.Timestamp.now().timestamp()
+        })
+    new_data = pd.DataFrame(new_rows)
+    # print(new_data)
+    new_ratings = pd.concat([ratings, new_data], ignore_index=True)
+    # 混淆评分
+    new_ratings['rating'] = add_laplace_noise(new_ratings['rating'].values, epsilon)
+    print("混淆后的评分,new_ratings\n", new_ratings)
+    user_movie_matrix = new_ratings.pivot(index='userId', columns='movieId', values='rating').fillna(0)
 
     user_similarity = cosine_similarity(user_movie_matrix)
 

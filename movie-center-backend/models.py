@@ -104,6 +104,15 @@ class Rating(db.Model):
 
     def __repr__(self):
         return f'<Rating {self.rating}>'
+    def to_dict(self):
+        return {
+            'rating_id': self.rating_id,
+            'user_id': self.user_id,
+            'movie_id': self.movie_id,
+            'rating': self.rating,
+            'comment': self.comment,
+            'timestamp': self.timestamp,
+        }
 
 
 class Browse(db.Model):
