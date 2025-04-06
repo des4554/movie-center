@@ -1,15 +1,18 @@
+import importlib
 from datetime import datetime
 from collections import defaultdict
 
 from flask import Flask, jsonify, request
 from sqlalchemy import func
 
+import config
 from models import db, User, Movie, Rating, MovieDetail, Browse
-from config import Config
+from config import Config, EPSILON
 from flask_cors import CORS
 import os
 
-from algorithms import get_recommend_movies, EPSILON
+from algorithms import get_recommend_movies
+
 
 app = Flask(__name__)
 CORS(app)
@@ -459,7 +462,7 @@ def get_sysData():
         'movieCount': Movie.query.count(),
         'userCount': User.query.count(),
         'averageRating': db.session.query(func.avg(Movie.rating)).scalar(),
-        'epsilon': EPSILON,
+        'epsilon': config.EPSILON,
         'rating_labels': rating_labels,
         'rating_counts': rating_counts,
         'tags': tags
@@ -493,6 +496,16 @@ def browse_history(userid):
     except Exception as e:
         print(f"错误: {str(e)}")  # 打印异常
         return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.get('/epsilon/<path:epsilon>')
+def changeEpsilon(epsilon):
+    epsilon = float(epsilon)
+    if epsilon < 0:
+        return jsonify({'success': False, 'message': 'Epsilon must be positive'}), 400
+    config.EPSILON = epsilon  # 直接修改(内存)
+    config.set_epsilon(epsilon)
+    print(f"EPSILON 已更新为: {config.EPSILON}")
+    return jsonify({'success': True, 'data': config.EPSILON})
 
 if __name__ == '__main__':
     app.run(debug=True)

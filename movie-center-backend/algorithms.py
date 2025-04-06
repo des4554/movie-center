@@ -2,13 +2,12 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 import mysql.connector
-
+from config import EPSILON
 # 1. 数据加载
 # 假设 rating.csv 包含 userId, movieId, rating 字段
 ratings_file = 'static/scripts/IMDBPoster/ml-latest-small/ratings.csv'
 ratings = pd.read_csv(ratings_file)
 
-EPSILON = 1.0
 # 连接到MySQL数据库
 connection = mysql.connector.connect(
     host='localhost',       # 数据库主机地址
