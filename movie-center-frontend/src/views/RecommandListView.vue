@@ -32,7 +32,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios'
 import { useAuthStore } from '@/stores/authStore.ts'
-import { addBrowseHistory } from '@/api/history.ts'
+import { addBrowseHistory, addRecommendHistory } from '@/api/history.ts'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
@@ -65,8 +65,14 @@ const fetchMovies = () => {
   // 模拟从API获取数据
   axios.get(`http://localhost:5000/recommend/${authStore?.user.userid}`)
     .then(res=>{
-      // console.log(res.data)
       const ids = res.data.map(item => item[0]); // 提取 ID
+      const params = {
+        "user_id": authStore.user.userid,
+        "movie_id": ids,
+        "time": add8HoursToISOTime()
+      }
+      addRecommendHistory(params)
+
       const idsString = ids.join(',');
       const scores = res.data.map(item => item[1].toFixed(2)); // 提取评分
       axios.get(`http://localhost:5000/movies`, {params:{

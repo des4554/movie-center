@@ -75,6 +75,9 @@ class MovieDetail(db.Model):
     directors = db.Column(db.String(255))                            # 导演
     writers = db.Column(db.String(255))                              # 编剧
     stars = db.Column(db.Text)                                       # 主演
+    male_rating = db.Column(db.Integer)
+    female_rating = db.Column(db.Integer)
+    age_rating = db.Column(db.String(255))
 
     def __repr__(self):
         return f"<MovieDetail(id={self.id}, name={self.name}, genre={self.genre})>"
@@ -91,6 +94,9 @@ class MovieDetail(db.Model):
             'directors': self.directors,
             'writers': self.writers,
             'stars': self.stars,
+            'male_rating': self.male_rating,
+            'female_rating': self.female_rating,
+            'age_rating': self.age_rating,
         }
 class Rating(db.Model):
     """评分表"""

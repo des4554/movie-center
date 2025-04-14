@@ -149,7 +149,10 @@ def get_movie_detail(movieId):
         'intro': movie.intro,
         'directors': movie.directors,
         'writers': movie.writers,
-        'stars': movie.stars
+        'stars': movie.stars,
+        'male_rating': movie.male_rating,
+        'female_rating': movie.female_rating,
+        'age_rating': movie.age_rating,
     }), 201
 
 #搜索电影普通信息
@@ -258,6 +261,32 @@ def updateMovieRating(userId, movieId):
         db.session.commit()
         return jsonify({'message': 'Rating updated successfully'}), 201
     else:
+        # 新增用户评分
+        user = User.query.get(userId)
+        movie = MovieDetail.query.get(movieId)
+        age = user.age
+        gender = user.gender
+        if gender == '男':
+            movie.male_rating += 1
+        elif gender == '女':
+            movie.female_rating += 1
+        idx = -1
+        if age > 55:
+            idx = 5
+        elif age > 45:
+            idx = 4
+        elif age > 35:
+            idx = 3
+        elif age > 25:
+            idx = 2
+        elif age > 18:
+            idx = 1
+        else:
+            idx = 0
+        tmp = [int(x) for x in movie.age_rating.split(',')]
+        tmp[idx] += 1
+        tmp = [str(x) for x in tmp]
+        movie.age_rating = ','.join(tmp)
         new_rating = Rating(user_id=userId, movie_id=movieId, rating=rat, comment=comment)
         db.session.add(new_rating)
         db.session.commit()
