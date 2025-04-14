@@ -61,6 +61,7 @@ import MovieManageView from '@/views/MovieManageView.vue'
 import UserManageView from '@/views/UserManageView.vue'
 import SettingView from '@/views/SettingView.vue'
 import BrowseHistory from '@/views/BrowseHistory.vue'
+import RecommendHistory from '@/views/RecommendHistory.vue'
 const authStore = useAuthStore()
 console.log(authStore?.user)
 const selectedKeys = ref<string[]>(['1'])
@@ -73,6 +74,7 @@ const menuItems = [
   { key: '4', icon: EditOutlined , text: '修改信息', component: InfoChange },
   { key: '5', icon: LikeOutlined , text: '我的评分', component: RatingView },
   { key: '6', icon: ClockCircleOutlined , text: '浏览历史', component: BrowseHistory },
+  { key: '7', icon: ClockCircleOutlined , text: '推荐历史', component: RecommendHistory },
 
 ]
 const adminMenus = ref([

@@ -129,3 +129,18 @@ class Browse(db.Model):
             'movie_id': self.movie_id,
             'time': self.time,
         }
+
+class Recommend(db.Model):
+    __tablename__ = 'recommend_history'
+    recommend_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
+    movie_id = db.Column(db.Integer, db.ForeignKey('movies.movie_id'), nullable=False)
+    recommend_time = db.Column(db.DateTime)
+
+    def to_dict(self):
+        return {
+            'recommend_id': self.recommend_id,
+            'user_id': self.user_id,
+            'movie_id': self.movie_id,
+            'time': self.recommend_time,
+        }

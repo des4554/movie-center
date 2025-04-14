@@ -6,7 +6,7 @@ from flask import Flask, jsonify, request
 from sqlalchemy import func
 
 import config
-from models import db, User, Movie, Rating, MovieDetail, Browse
+from models import db, User, Movie, Rating, MovieDetail, Browse, Recommend
 from config import Config, EPSILON
 from flask_cors import CORS
 import os
@@ -469,7 +469,7 @@ def get_sysData():
     }})
 
 
-
+# 浏览历史
 @app.route('/addBrowse', methods=['POST'])
 def add_browse():
     data = request.get_json()
@@ -496,6 +496,37 @@ def browse_history(userid):
     except Exception as e:
         print(f"错误: {str(e)}")  # 打印异常
         return jsonify({'success': False, 'message': str(e)}), 500
+
+# 推荐历史
+@app.route('/recommend/history', methods=['POST'])
+def add_recommend_history():
+    data = request.get_json()
+    print(data)
+    dt = datetime.strptime(data.get('time'), "%Y-%m-%dT%H:%M:%S.%fZ")
+    ids = data.get('movie_id')
+    for id in ids:
+        re = Recommend()
+        re.movie_id = id
+        re.user_id = data.get('user_id')
+        re.recommend_time = dt.strftime("%Y-%m-%d %H:%M:%S")
+        db.session.add(re)
+        db.session.commit()
+
+    return jsonify({'success': True, 'data': data})
+
+@app.get('/recommend/history/<int:userid>')
+def get_recommend_history(userid):
+    try:
+        # 实际查询
+        res = Recommend.query.filter(Recommend.user_id == userid).order_by(Recommend.recommend_time.desc()).all()
+        return jsonify({
+            'success': True,
+            'data': [r.to_dict() for r in res]
+        })
+    except Exception as e:
+        print(f"错误: {str(e)}")  # 打印异常
+        return jsonify({'success': False, 'message': str(e)}), 500
+
 
 @app.get('/epsilon/<path:epsilon>')
 def changeEpsilon(epsilon):
