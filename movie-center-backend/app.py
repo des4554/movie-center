@@ -2,6 +2,7 @@ import importlib
 from datetime import datetime
 from collections import defaultdict
 
+import bcrypt
 from flask import Flask, jsonify, request
 from sqlalchemy import func
 
@@ -24,15 +25,23 @@ with app.app_context():
     db.create_all()
 
 
-
+# 用户登录
 @app.route('/login', methods=['POST'])
 def login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
 
+    if not username or not password:
+        return jsonify({
+            "success": False,
+            "message": "用户名和密码不能为空"
+        }), 400
+
     user = User.query.filter(User.username == username).first()
-    if user and user.password == password:
+
+    # 验证密码
+    if user and bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return jsonify({
             "success": True,
             "user": {
@@ -44,7 +53,7 @@ def login():
                 "phone": user.phone,
                 "gender": user.gender,
                 "age": user.age,
-                "password": user.password,
+                # 注意：不再返回密码
                 "tags": user.tags,
             },
         })
@@ -65,18 +74,25 @@ def register():
     if not username or not password:
         return jsonify({
             'success': False,
-            'message': 'Missing required fields'}), 400
+            'message': '用户名和密码不能为空'
+        }), 400
 
     if User.query.filter_by(username=username).first():
-        return jsonify({'success': False,'message': 'Username already exists'}), 400
+        return jsonify({
+            'success': False,
+            'message': '用户名已存在'
+        }), 400
 
-    new_user = User(username=username, password=password)
+    # 加密密码
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    new_user = User(username=username, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
     return jsonify({
         'success': True,
-        'message': 'User registered successfully'
+        'message': '用户注册成功'
     }), 201
 
 

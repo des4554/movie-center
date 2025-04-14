@@ -135,10 +135,13 @@ def get_recommend_movies(user_id, user_favorite_genres, user_browse_history, use
     # 7. 预测用户对未评分电影的评分
     predicted_ratings = predict_ratings(user_id, user_similarity, user_movie_matrix)
 
-    # 8. 结合用户偏好类型调整推荐分数
+    # 8.1 结合用户偏好类型调整推荐分数
     for movie_id, rating in predicted_ratings.items():
         genre_match = movies.loc[movies['movie_id'] == movie_id, 'genre_match'].values[0]
         predicted_ratings[movie_id] = rating * (1 + genre_match)  # 调整评分
+
+    # 8.2 结合用户年龄和性别调整推荐分数
+
 
     normalized_predicted_ratings = normalize_ratings(predicted_ratings)
     # 9. 按调整后的评分排序
