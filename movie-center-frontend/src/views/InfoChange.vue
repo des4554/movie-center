@@ -42,7 +42,7 @@
         <a-radio-group v-model:value="formData.gender">
           <a-radio value="男">男</a-radio>
           <a-radio value="女">女</a-radio>
-        </a-radio-group>
+        </a-radio-group><span>（年龄和性别都会影响你的电影推荐）</span>
       </a-form-item>
       <a-form-item :wrapper-col="{ span: 14, offset: 6 }">
         <a-button type="primary" html-type="submit">提交</a-button>

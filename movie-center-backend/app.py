@@ -434,7 +434,15 @@ def recommend(userId):
     for rating in user_ratings:
         user_rating_dict[rating.movie_id] = rating.rating
     # print(user_rating_dict)
-    movies = get_recommend_movies(userId, like_tags, user_browse_history, user_rating_dict)
+
+    # 获取用户信息和电影信息用于年龄和性别的推荐
+    user = User.query.get(userId)
+    user_info = {
+        "gender": user.gender,
+        "age": user.age,
+    }
+
+    movies = get_recommend_movies(userId, like_tags, user_browse_history, user_rating_dict, user_info)
     # print(movies)
     return jsonify(movies)
 
