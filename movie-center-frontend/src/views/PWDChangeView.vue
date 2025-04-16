@@ -41,22 +41,20 @@ const validateConfirmPassword = (rule, value) => {
 
 const handleSubmit = (values) => {
   console.log('提交的表单数据：', values);
-  //先校验旧密码是否正确
-  if (formData.value.oldPassword !== '' && formData.value.oldPassword != authStore?.user.password) {
-    message.error("原密码错误！")
-    return false
-  } else {
-    authStore.user = {
-      ...authStore.user, // 保留原有字段
-      password: formData.value.newPassword,
-    };
-    axios.post('http://localhost:5000/infoChange', authStore.user).then(res => {
-      // console.log(res.data)
-      if (res.data.success) {
-        message.success("密码修改成功")
-      }
-    })
-  }
+  authStore.user = {
+    ...authStore.user, // 保留原有字段
+    oldPassword: formData.value.oldPassword,
+    newPassword: formData.value.newPassword,
+  };
+  axios.post('http://localhost:5000/pwdChange', authStore.user).then(res => {
+    // console.log(res.data)
+    if (res.data.success) {
+      message.success("密码修改成功")
+    } else {
+      message.error(res.data.message)
+    }
+  })
+
 };
 
 const handleSubmitFailed = (errorInfo) => {
