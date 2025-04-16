@@ -53,7 +53,6 @@ def login():
                 "phone": user.phone,
                 "gender": user.gender,
                 "age": user.age,
-                # 注意：不再返回密码
                 "tags": user.tags,
             },
         })
@@ -337,26 +336,38 @@ def infoChange():
     user = User.query.get(id)
     print("user", user)
     user.username = data.get('username')
-    # avatar_url  = user.avatarUrl
-    # 删除对应的头像，删不了一点
-    # static_index = avatar_url.find('/static/')
-    # relative_path = avatar_url[static_index:]
-    # print("delete", relative_path)
-    # if avatar_url and os.path.exists(relative_path):
-    #     print("delete!!!")
-    #     os.remove(avatar_url)
     user.avatarUrl = data.get('avatar_url')
     user.phone = data.get('phone')
     user.email = data.get('email')
     user.gender = data.get('gender')
     user.age = data.get('age')
-    user.password = data.get('password')
     user.tags = data.get('tags')
     db.session.commit()
     return jsonify({
         'success': True,
         'message': 'User info changed successfully'
     }), 201
+
+@app.route('/pwdChange', methods=['POST'])
+def pwdChange():
+    data = request.get_json()
+    id = data.get('userid')
+    oldpwd = data.get('oldPassword')
+    newpwd = data.get('newPassword')
+    user = User.query.get(id)
+    if user and bcrypt.checkpw(oldpwd.encode('utf-8'), user.password.encode('utf-8')):
+        user.password = bcrypt.hashpw(newpwd.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        db.session.commit()
+        return jsonify({
+            "success": True,
+        })
+    else:
+        return jsonify({
+            "success": False,
+            "message": "原密码错误"
+        })
+
+
 
 import uuid
 # 配置文件上传
